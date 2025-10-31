@@ -250,8 +250,8 @@ class _PartnerDashboardState extends State<PartnerDashboard>
                             child: ListView.separated(
                               scrollDirection: Axis.horizontal,
                               itemCount: jobs.length,
-                              separatorBuilder:
-                                  (context, index) => const SizedBox(width: 16),
+                              separatorBuilder: (context, index) =>
+                                  const SizedBox(width: 16),
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
                               ),
@@ -378,8 +378,8 @@ class _PartnerDashboardState extends State<PartnerDashboard>
                             context,
                             PageRouteBuilder(
                               opaque: false,
-                              pageBuilder:
-                                  (_, __, ___) => const PartnerSidebar(),
+                              pageBuilder: (_, __, ___) =>
+                                  const PartnerSidebar(),
                               transitionDuration: Duration(milliseconds: 400),
                             ),
                           );
@@ -496,10 +496,9 @@ class _PartnerDashboardState extends State<PartnerDashboard>
                         width: _currentPage == index ? 16 : 8,
                         height: 8,
                         decoration: BoxDecoration(
-                          color:
-                              _currentPage == index
-                                  ? Colors.white
-                                  : Colors.white54,
+                          color: _currentPage == index
+                              ? Colors.white
+                              : Colors.white54,
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
@@ -632,10 +631,9 @@ class _PartnerDashboardState extends State<PartnerDashboard>
                         'Sat',
                         'Sun',
                       ];
-                      final day =
-                          groupIndex >= 0 && groupIndex < days.length
-                              ? days[groupIndex]
-                              : '';
+                      final day = groupIndex >= 0 && groupIndex < days.length
+                          ? days[groupIndex]
+                          : '';
                       return BarTooltipItem(
                         "$day\n₹${rod.toY.toInt()}",
                         const TextStyle(
@@ -694,38 +692,36 @@ class _PartnerDashboardState extends State<PartnerDashboard>
                   show: true,
                   drawVerticalLine: false,
                   horizontalInterval: 1000,
-                  getDrawingHorizontalLine:
-                      (value) => FlLine(
-                        color: Colors.grey.withOpacity(0.2),
-                        strokeWidth: 1,
-                      ),
+                  getDrawingHorizontalLine: (value) => FlLine(
+                    color: Colors.grey.withOpacity(0.2),
+                    strokeWidth: 1,
+                  ),
                 ),
                 borderData: FlBorderData(show: false),
-                barGroups:
-                    weeklyEarnings.asMap().entries.map((entry) {
-                      final index = entry.key;
-                      final value = entry.value.toDouble();
-                      return BarChartGroupData(
-                        x: index,
-                        barRods: [
-                          BarChartRodData(
-                            toY: value,
-                            borderRadius: BorderRadius.circular(6),
-                            width: 22,
-                            gradient: LinearGradient(
-                              colors: [Color(0xFF1D828E), Color(0xFFFEAC5D)],
-                              begin: Alignment.bottomCenter,
-                              end: Alignment.topCenter,
-                            ),
-                            backDrawRodData: BackgroundBarChartRodData(
-                              show: true,
-                              toY: 6000,
-                              color: Colors.grey.withOpacity(0.1),
-                            ),
-                          ),
-                        ],
-                      );
-                    }).toList(),
+                barGroups: weeklyEarnings.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final value = entry.value.toDouble();
+                  return BarChartGroupData(
+                    x: index,
+                    barRods: [
+                      BarChartRodData(
+                        toY: value,
+                        borderRadius: BorderRadius.circular(6),
+                        width: 22,
+                        gradient: LinearGradient(
+                          colors: [Color(0xFF1D828E), Color(0xFFFEAC5D)],
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                        ),
+                        backDrawRodData: BackgroundBarChartRodData(
+                          show: true,
+                          toY: 6000,
+                          color: Colors.grey.withOpacity(0.1),
+                        ),
+                      ),
+                    ],
+                  );
+                }).toList(),
               ),
               swapAnimationDuration: Duration(milliseconds: 800),
               swapAnimationCurve: Curves.easeInOut,
@@ -1218,8 +1214,8 @@ class _StringLightsPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint =
-        Paint()..color = Colors.yellow.withOpacity(0.5 + 0.5 * animation.value);
+    final paint = Paint()
+      ..color = Colors.yellow.withOpacity(0.5 + 0.5 * animation.value);
     for (double i = 0; i < size.width; i += 20) {
       canvas.drawCircle(Offset(i, 20 + 10 * animation.value), 5, paint);
     }

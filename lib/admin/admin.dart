@@ -346,7 +346,7 @@ class DashboardPage extends StatelessWidget {
               children: [
                 _LHStatCard(
                   title: 'Total Users',
-                  value: '2,184',
+                  value: '12',
                   icon: Icons.people,
                   gradient: LinearGradient(
                     colors: [hexToColor("#1D828E"), hexToColor("#1A237E")],
@@ -357,7 +357,7 @@ class DashboardPage extends StatelessWidget {
                 const SizedBox(width: 16),
                 _LHStatCard(
                   title: 'Active Workers',
-                  value: '743',
+                  value: '6',
                   icon: Icons.handyman,
                   gradient: LinearGradient(
                     colors: [hexToColor("#1D828E"), hexToColor("#1A237E")],
@@ -378,7 +378,7 @@ class DashboardPage extends StatelessWidget {
                   },
                   child: _LHStatCard(
                     title: 'Pending Requests',
-                    value: '38',
+                    value: '3',
                     icon: Icons.inbox,
                     gradient: LinearGradient(
                       colors: [hexToColor("#1D828E"), hexToColor("#1A237E")],
@@ -391,7 +391,7 @@ class DashboardPage extends StatelessWidget {
                 const SizedBox(width: 16),
                 _LHStatCard(
                   title: 'Availability Slots',
-                  value: '129',
+                  value: '1',
                   icon: Icons.event_available,
                   gradient: LinearGradient(
                     colors: [hexToColor("#1D828E"), hexToColor("#1A237E")],

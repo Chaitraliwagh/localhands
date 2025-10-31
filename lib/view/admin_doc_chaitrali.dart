@@ -13,11 +13,10 @@ class AdminVerificationScreen extends StatelessWidget {
         backgroundColor: Colors.indigo,
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream:
-            FirebaseFirestore.instance
-                .collection('users')
-                .where('verificationRequested', isEqualTo: true)
-                .snapshots(),
+        stream: FirebaseFirestore.instance
+            .collection('users')
+            .where('verificationRequested', isEqualTo: true)
+            .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
@@ -39,16 +38,18 @@ class AdminVerificationScreen extends StatelessWidget {
               return ListTile(
                 title: Text("User ID: $userId"),
                 subtitle: Text(isVerified ? "✅ Verified" : "⏳ Pending"),
-                trailing:
-                    isVerified
-                        ? const Icon(Icons.verified, color: Colors.green)
-                        : ElevatedButton(
-                          onPressed: () async {
+                trailing: isVerified
+                    ? const Icon(Icons.verified, color: Colors.green)
+                    : ElevatedButton(
+                        onPressed: () async {
+                          try {
                             await FirebaseFirestore.instance
                                 .collection('users')
                                 .doc(userId)
-                                .update({'isVerified': true});
-
+                                .update({
+                                  'isVerified': true,
+                                  'verificationRequested': false,
+                                });
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
@@ -56,12 +57,19 @@ class AdminVerificationScreen extends StatelessWidget {
                                 ),
                               ),
                             );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
-                          ),
-                          child: const Text("Verify"),
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text("Error verifying user: $e"),
+                              ),
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
                         ),
+                        child: const Text("Verify"),
+                      ),
               );
             },
           );

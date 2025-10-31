@@ -111,6 +111,7 @@ class _HomeScreenState extends State<HomeScreen>
                         child: _buildServicesCarousel(),
                       ),
                       _buildDiscoverAllServices(),
+                      const SizedBox(height: 16),
                       _buildSpecialOfferCard(),
                       const HomewomenSpa(),
                       const SizedBox(height: 16),
@@ -499,7 +500,7 @@ class _HomeScreenState extends State<HomeScreen>
             padding: const EdgeInsets.all(16),
             child: Icon(item["icon"], size: 36, color: Colors.black),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Text(
             item["title"],
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),

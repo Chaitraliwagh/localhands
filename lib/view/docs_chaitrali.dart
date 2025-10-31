@@ -7,6 +7,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:localhands_app/view/admin_doc_chaitrali.dart';
 import 'package:localhands_app/view/home_chaitrali.dart';
+import 'package:localhands_app/view/login.dart';
 import 'package:open_file/open_file.dart';
 
 class DocumentationScreen extends StatefulWidget {
@@ -51,7 +52,22 @@ class _DocumentationScreenState extends State<DocumentationScreen>
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       userId = user.uid;
-      _listenToVerificationUpdates();
+
+      // ✅ Check immediately if user already verified
+      FirebaseFirestore.instance.collection('users').doc(userId).get().then((
+        doc,
+      ) {
+        if (doc.exists && doc['isVerified'] == true) {
+          // Already verified → skip document upload screen
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const PartnerDashboard()),
+          );
+        } else {
+          // Not verified → continue listening for updates
+          _listenToVerificationUpdates();
+        }
+      });
     } else {
       // No user signed in — show snackbar or handle redirection if needed
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -147,7 +163,12 @@ class _DocumentationScreenState extends State<DocumentationScreen>
                       color: Colors.black87,
                     ),
                     onPressed: () {
-                      Navigator.pop(context); // Go back to login screen
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AuthScreen(),
+                        ),
+                      ); // Go back to login screen
                     },
                   ),
                 ),

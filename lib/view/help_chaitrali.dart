@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:localhands_app/view/chatscreen.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -43,24 +44,23 @@ class _SupportScreenState extends State<SupportScreen> {
   Future<void> _confirmAndCall(BuildContext context) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder:
-          (_) => AlertDialog(
-            title: const Text("Confirm Call"),
-            content: const Text("Do you want to call support?"),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text("Cancel"),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text("Call"),
-              ),
-            ],
+      builder: (_) => AlertDialog(
+        title: const Text("Confirm Call"),
+        content: const Text("Do you want to call support?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text("Cancel"),
           ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text("Call"),
+          ),
+        ],
+      ),
     );
     if (confirmed == true) {
-      final url = Uri.parse("tel:+917219619447");
+      final url = Uri.parse("tel:+918262058086");
       if (await canLaunchUrl(url)) await launchUrl(url);
     }
   }
@@ -68,21 +68,20 @@ class _SupportScreenState extends State<SupportScreen> {
   Future<void> _confirmAndEmail(BuildContext context) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder:
-          (_) => AlertDialog(
-            title: const Text("Confirm Email"),
-            content: const Text("Do you want to send an email to support?"),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text("Cancel"),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text("Open Mail"),
-              ),
-            ],
+      builder: (_) => AlertDialog(
+        title: const Text("Confirm Email"),
+        content: const Text("Do you want to send an email to support?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text("Cancel"),
           ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text("Open Mail"),
+          ),
+        ],
+      ),
     );
     if (confirmed == true) {
       final url = Uri.parse("mailto:support@company.com");
@@ -264,12 +263,17 @@ If a user asks something unrelated, gently redirect them to worker-related help.
                 _contactButton(context, Icons.chat, "Chat", primaryColor, (
                   ctx,
                 ) {
-                  ScaffoldMessenger.of(ctx).showSnackBar(
-                    const SnackBar(
-                      content: Text("Chat section will open in future updates"),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ChatScreen(
+                        chatId: 'user123_worker456', // fixed unique id for both
+                        currentUserId: 'worker456',
+                      ),
                     ),
                   );
                 }),
+
                 _contactButton(
                   context,
                   Icons.email,
@@ -391,18 +395,16 @@ If a user asks something unrelated, gently redirect them to worker-related help.
                         final msg = _chatMessages[index];
                         final isUser = msg["sender"] == "user";
                         return Align(
-                          alignment:
-                              isUser
-                                  ? Alignment.centerRight
-                                  : Alignment.centerLeft,
+                          alignment: isUser
+                              ? Alignment.centerRight
+                              : Alignment.centerLeft,
                           child: Container(
                             margin: const EdgeInsets.symmetric(vertical: 6),
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color:
-                                  isUser
-                                      ? primaryColor.withOpacity(0.9)
-                                      : Colors.grey.shade200,
+                              color: isUser
+                                  ? primaryColor.withOpacity(0.9)
+                                  : Colors.grey.shade200,
                               borderRadius: BorderRadius.circular(14),
                             ),
                             child: Text(
