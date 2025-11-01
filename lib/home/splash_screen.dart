@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:localhands_app/home/login.dart';
 
-
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -24,16 +23,15 @@ class _SplashScreenState extends State<SplashScreen>
       duration: const Duration(seconds: 2),
     );
 
-    _opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
-    );
+    _opacityAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
 
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.5),
       end: Offset.zero,
-    ).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
     _controller.repeat(reverse: true);
 
@@ -56,15 +54,18 @@ class _SplashScreenState extends State<SplashScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-       decoration:const BoxDecoration(
-        gradient:LinearGradient(
-          begin:Alignment.topLeft,
-          end:Alignment.bottomRight,
-          colors: [Color(0xFF1D828E), Color.fromARGB(15, 29, 150, 94)],
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFFFFFFFF), // white start for brightness
+              Color(0xFF69B5C2), // soft teal-blue
+              Color(0xFF5C6BC0), // light indigo finish
+            ],
+          ),
+        ),
 
-        )
-
-       ),
         child: Center(
           child: SlideTransition(
             position: _slideAnimation,

@@ -5,13 +5,13 @@ import 'package:iconsax/iconsax.dart';
 
 // Screens
 import 'package:localhands_app/beauty_screen.dart';
+import 'package:localhands_app/home/notification.dart';
 import 'package:localhands_app/plumber_screen.dart';
+import 'package:localhands_app/profile_sejal.dart';
+import 'package:localhands_app/view/booking_page_sejal.dart';
 import 'package:localhands_app/view/maid.dart';
 import 'package:localhands_app/view/service.dart';
 import 'package:localhands_app/view/womenSalon.dart';
-import 'package:localhands_app/home/booking_page.dart';
-import 'package:localhands_app/home/profile_screeen.dart';
-
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -94,10 +94,7 @@ class _HomeScreenState extends State<HomeScreen>
           Positioned.fill(
             child: Opacity(
               opacity: 0.1,
-              child: Image.asset(
-                'assets/logo.jpeg',
-                fit: BoxFit.cover,
-              ),
+              child: Image.asset('assets/logo.jpeg', fit: BoxFit.cover),
             ),
           ),
           // Main Content
@@ -151,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen>
           _navBarItem(Iconsax.home, "Home", 0),
           _navBarItem(Iconsax.category, "Services", 1),
           _navBarItem(Iconsax.card_tick, "Booking", 2),
-          _navBarItem(Iconsax.user, "Profile", 3),
+          _navBarItem(Iconsax.notification, "Notifications", 3),
         ],
       ),
     );
@@ -160,28 +157,27 @@ class _HomeScreenState extends State<HomeScreen>
   Widget _navBarItem(IconData icon, String label, int index) {
     final isSelected = _selectedIndex == index;
     return GestureDetector(
-    onTap: () {
-      if (label == "Services") {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const ServiceScreen()),
-        );
-      } else if (label == "Booking") {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const BookingPage()),
-        );
-      } else if (label == "Profile") {
-  Navigator.push(
-    context,
-    MaterialPageRoute(builder: (_) => const ProfileScreen()),
-  );
-} else {
-  setState(() => _selectedIndex = index);
-}
-
-    },
-    child: Column(
+      onTap: () {
+        if (label == "Services") {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const ServiceScreen()),
+          );
+        } else if (label == "Booking") {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const BookingPage()),
+          );
+        } else if (label == "Notifications") {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const NotificationScreen()),
+          );
+        } else {
+          setState(() => _selectedIndex = index);
+        }
+      },
+      child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -233,17 +229,32 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                   Text(
                     formattedDate,
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 16,
-                    ),
+                    style: const TextStyle(color: Colors.white70, fontSize: 16),
                   ),
                 ],
               ),
-              const CircleAvatar(
-                radius: 20,
-                backgroundImage: AssetImage("assets/profile.jpg"),
-              ),
+              GestureDetector(
+  onTap: () {
+    Navigator.of(context).push(PageRouteBuilder(
+      opaque: false,
+      pageBuilder: (context, animation, secondaryAnimation) => SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(1.0, 0.0), // slides from right
+          end: Offset.zero,
+        ).animate(CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeInOut,
+        )),
+        child: const _GlassyProfileOverlay(),
+      ),
+    ));
+  },
+  child: const CircleAvatar(
+    radius: 20,
+    backgroundImage: AssetImage("assets/profile.jpg"),
+  ),
+)
+
             ],
           ),
           const SizedBox(height: 12),
@@ -500,7 +511,9 @@ class _HomeScreenState extends State<HomeScreen>
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                  color: const Color.fromARGB(255, 68, 210, 165), width: 2),
+                color: const Color.fromARGB(255, 68, 210, 165),
+                width: 2,
+              ),
             ),
             padding: const EdgeInsets.all(16),
             child: Icon(item["icon"], size: 36, color: Colors.black),
@@ -525,14 +538,15 @@ class _HomeScreenState extends State<HomeScreen>
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           gradient: LinearGradient(
-            colors: [Colors.pinkAccent.shade100, Colors.orangeAccent.shade200],
+            colors: [Color(0xFF1D828E), Color.fromARGB(255, 50, 189, 117)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
         ),
         child: const Center(
-          child: Text(
-            "     Special Offer! Get 20% off on your first booking.",
+          
+           child: Text(
+            "     Special Offer! Get 20% off on your  first booking.",
             style: TextStyle(
               color: Colors.white,
               fontSize: 20,
@@ -545,141 +559,154 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   // -------------------- Drawer --------------------
- Drawer _buildDrawer() {
-  return Drawer(
-    child: Stack(
-      children: [
-        // watermark
-        Positioned.fill(
-          child: Opacity(
-            opacity: 0.05,
-            child: Image.asset('assets/logoicon.png', fit: BoxFit.cover),
+  Drawer _buildDrawer() {
+    return Drawer(
+      child: Stack(
+        children: [
+          // watermark
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.05,
+              child: Image.asset('assets/logoicon.png', fit: BoxFit.cover),
+            ),
           ),
-        ),
-        
 
-        ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            ClipPath(
-              clipper: _WaveClipper(), // <-- constructor call
-              child: Container(
-                width: double.infinity,
-                height: 220,
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFF003C6E), Color(0xFF007C91)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+          ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              ClipPath(
+                clipper: _WaveClipper(), // <-- constructor call
+                child: Container(
+                  width: double.infinity,
+                  height: 220,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Color(0xFF003C6E), Color(0xFF007C91)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                   ),
-                ),
-                child: SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        CircleAvatar(
-                          radius: 40,
-                          backgroundImage: AssetImage("assets/profilepic.jpg"),
-                        ),
-                        SizedBox(height: 12),
-                        Text(
-                          "Sejal Patil",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Icon(Icons.location_on, color: Colors.white70, size: 16),
-                            SizedBox(width: 4),
-                            Text(
-                              "Jalgaon, Maharashtra",
-                              style: TextStyle(color: Colors.white70, fontSize: 13),
+                  child: SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 14,
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          CircleAvatar(
+                            radius: 40,
+                            backgroundImage: AssetImage(
+                              "assets/profilepic.jpg",
                             ),
-                          ],
-                        ),
-                      ],
+                          ),
+                          SizedBox(height: 12),
+                          Text(
+                            "Sejal Patil",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.location_on,
+                                color: Colors.white70,
+                                size: 16,
+                              ),
+                              SizedBox(width: 4),
+                              Text(
+                                "Jalgaon, Maharashtra",
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
 
-            const SizedBox(height: 8),
-            _drawerTile(Icons.check_circle, "Completed Services"),
-            _drawerTile(Icons.cancel, "Cancelled Services"),
-            _drawerTile(Icons.timer, "Upcoming Services"),
-            const Divider(),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
-              child: Text(
-                "Payments",
-                style: TextStyle(
-                  color: Colors.black54,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
+              const SizedBox(height: 8),
+              _drawerTile(Icons.check_circle, "Completed Services"),
+              _drawerTile(Icons.cancel, "Cancelled Services"),
+              _drawerTile(Icons.timer, "Upcoming Services"),
+              const Divider(),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
+                child: Text(
+                  "Payments",
+                  style: TextStyle(
+                    color: Colors.black54,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
                 ),
               ),
-            ),
-            _drawerTile(Icons.credit_card, "Payment Methods"),
-            _drawerTile(Icons.account_balance_wallet, "Wallet & Transactions"),
-            _drawerTile(Icons.receipt_long, "Receipts"),
-            const Divider(),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
-              child: Text(
-                "System",
-                style: TextStyle(
-                  color: Colors.black54,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
+              _drawerTile(Icons.credit_card, "Payment Methods"),
+              _drawerTile(
+                Icons.account_balance_wallet,
+                "Wallet & Transactions",
+              ),
+              _drawerTile(Icons.receipt_long, "Receipts"),
+              const Divider(),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
+                child: Text(
+                  "System",
+                  style: TextStyle(
+                    color: Colors.black54,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
                 ),
               ),
-            ),
-            _drawerTile(Icons.notifications, "Notifications"),
-            _drawerTile(Icons.dark_mode, "Dark Mode"),
-            _drawerTile(Icons.settings, "Settings"),
-            _drawerTile(Icons.help_outline, "Help & Support"),
-            _drawerTile(Icons.info_outline, "About Local Hands"),
-            const SizedBox(height: 12),
-            _drawerTile(Icons.logout, "Logout", color: Colors.redAccent),
-            const SizedBox(height: 24),
-          ],
-        ),
-      ],
-    ),
-  );
-}
-
-
-ListTile _drawerTile(IconData icon, String title, {Color color = Colors.black}) {
-  return ListTile(
-    leading: Icon(icon, color: color),
-    title: Text(
-      title,
-      style: TextStyle(
-        fontWeight: FontWeight.w500,
-        color: color,
+              _drawerTile(Icons.notifications, "Notifications"),
+              _drawerTile(Icons.dark_mode, "Dark Mode"),
+              _drawerTile(Icons.settings, "Settings"),
+              _drawerTile(Icons.help_outline, "Help & Support"),
+              _drawerTile(Icons.info_outline, "About Local Hands"),
+              const SizedBox(height: 12),
+              _drawerTile(Icons.logout, "Logout", color: Colors.redAccent),
+              const SizedBox(height: 24),
+            ],
+          ),
+        ],
       ),
-    ),
-    onTap: () {
-  if (title == "Profile") {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const ProfileScreen()),
     );
   }
-},
 
-  );
+  ListTile _drawerTile(
+    IconData icon,
+    String title, {
+    Color color = Colors.black,
+  }) {
+    return ListTile(
+      leading: Icon(icon, color: color),
+      title: Text(
+        title,
+        style: TextStyle(fontWeight: FontWeight.w500, color: color),
+      ),
+      onTap: () {
+        if (title == "Profile") {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const ProfileScreen()),
+          );
+        }
+      },
+    );
+  }
 }
-    }
 
 class _WaveClipper extends CustomClipper<Path> {
   @override
@@ -713,5 +740,48 @@ class _WaveClipper extends CustomClipper<Path> {
     return false;
   }
 }
+class _GlassyProfileOverlay extends StatelessWidget {
+  const _GlassyProfileOverlay({super.key});
 
-    
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black.withOpacity(0.3), // glassy backdrop
+      body: Stack(
+        children: [
+          GestureDetector(
+            onTap: () => Navigator.pop(context), // tap outside to close
+            child: Container(color: Colors.transparent),
+          ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.8,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.85), // glassy panel
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(30),
+                  bottomLeft: Radius.circular(30),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 10,
+                    offset: const Offset(-4, 0),
+                  ),
+                ],
+              ),
+              child: const ClipRRect(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(30),
+                  bottomLeft: Radius.circular(30),
+                ),
+                child: ProfileScreen(), // your profile screen widget
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

@@ -1,5 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:localhands_app/admin/admin.dart';
+import 'package:localhands_app/view/splash_chaitrali.dart';
 import 'package:lottie/lottie.dart';
 import 'package:localhands_app/home/home_screen.dart';
 
@@ -10,7 +13,8 @@ class AuthScreen extends StatefulWidget {
   State<AuthScreen> createState() => _AuthScreenState();
 }
 
-class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateMixin {
+class _AuthScreenState extends State<AuthScreen>
+    with SingleTickerProviderStateMixin {
   final PageController _pageController = PageController();
   int _currentPage = 0;
   bool _showSignUp = false;
@@ -167,8 +171,8 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                     child: _showSignUp
                         ? _buildGlassForm(isSignUp: true)
                         : _showSignIn
-                            ? _buildGlassForm(isSignUp: false)
-                            : _buildGetStartedScreen(),
+                        ? _buildGlassForm(isSignUp: false)
+                        : _buildGetStartedScreen(),
                   ),
                 ],
               ),
@@ -233,16 +237,16 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
       child: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06, vertical: screenHeight * 0.02),
+          padding: EdgeInsets.symmetric(
+            horizontal: screenWidth * 0.06,
+            vertical: screenHeight * 0.02,
+          ),
           child: Container(
             padding: EdgeInsets.all(screenWidth * 0.05),
             decoration: BoxDecoration(
               color: Colors.transparent,
               borderRadius: BorderRadius.circular(25),
-              border: Border.all(
-                color: const Color(0xFF1D828E),
-                width: 2,
-              ),
+              border: Border.all(color: const Color(0xFF1D828E), width: 2),
             ),
             constraints: BoxConstraints(
               maxWidth: 500,
@@ -265,8 +269,13 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                 SizedBox(height: screenHeight * 0.02),
                 RichText(
                   text: TextSpan(
-                    text: isSignUp ? "Already have an account? " : "Don't have an account? ",
-                    style: TextStyle(color: Colors.black, fontSize: screenWidth * 0.04),
+                    text: isSignUp
+                        ? "Already have an account? "
+                        : "Don't have an account? ",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: screenWidth * 0.04,
+                    ),
                     children: [
                       TextSpan(
                         text: isSignUp ? "Sign In" : "Sign Up",
@@ -334,6 +343,9 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
     );
   }
 
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
   // -------------------- Single Login Form --------------------
   Widget _singleLoginForm(String type, {required bool isSignUp}) {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -352,26 +364,78 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            if (isSignUp) _buildTextField("$type Email", Icons.email, transparent: true),
-            _buildTextField("$type Email", Icons.email, transparent: true),
-            _buildTextField("$type Password", Icons.lock, obscure: true, transparent: true),
+            _buildTextField(
+              "$type Email",
+              Icons.email,
+              controller: _emailController,
+              transparent: true,
+            ),
+
+            _buildTextField(
+              "$type Password",
+              Icons.lock,
+              controller: _passwordController,
+              obscure: true,
+              transparent: true,
+            ),
+
             SizedBox(height: screenHeight * 0.02),
             _buildGradientButton(
               isSignUp ? "Sign Up" : "Sign In as $type",
-              () {
-                if (type == "Admin") {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const AdminApp()),
-                  );
-                } else if (type == "User") {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const HomeScreen()),
-                  );
-                } else {
+              () async {
+                try {
+                  final email = _emailController.text.trim();
+                  final password = _passwordController.text.trim();
+
+                  if (email.isEmpty || password.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Please fill in all fields"),
+                      ),
+                    );
+                    return;
+                  }
+
+                  if (isSignUp) {
+                    await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                      email: email,
+                      password: password,
+                    );
+                  } else {
+                    await FirebaseAuth.instance.signInWithEmailAndPassword(
+                      email: email,
+                      password: password,
+                    );
+                  }
+
+                  // Navigate after successful login/signup
+                  if (type == "Admin") {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const LocalHandsAdminApp(),
+                      ),
+                    );
+                  } else if (type == "User") {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const HomeScreen(),
+                      ),
+                    );
+                  } else if (type == "Worker") {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SplashScreen(),
+                      ),
+                    );
+                  }
+                } on FirebaseAuthException catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Worker login coming soon!")),
+                    SnackBar(
+                      content: Text(e.message ?? "Authentication failed"),
+                    ),
                   );
                 }
               },
@@ -388,15 +452,23 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
 
     return ElevatedButton(
       onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        padding: EdgeInsets.symmetric(vertical: screenWidth * 0.04, horizontal: screenWidth * 0.1),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-        elevation: 5,
-        backgroundColor: Colors.transparent,
-        shadowColor: Colors.black45,
-      ).copyWith(
-        backgroundColor: MaterialStateProperty.resolveWith<Color?>((states) => null),
-      ),
+      style:
+          ElevatedButton.styleFrom(
+            padding: EdgeInsets.symmetric(
+              vertical: screenWidth * 0.04,
+              horizontal: screenWidth * 0.1,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+            elevation: 5,
+            backgroundColor: Colors.transparent,
+            shadowColor: Colors.black45,
+          ).copyWith(
+            backgroundColor: MaterialStateProperty.resolveWith<Color?>(
+              (states) => null,
+            ),
+          ),
       child: Ink(
         decoration: BoxDecoration(
           gradient: const LinearGradient(
@@ -411,7 +483,11 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
           constraints: BoxConstraints(minWidth: screenWidth * 0.3),
           child: Text(
             text,
-            style: TextStyle(fontSize: screenWidth * 0.045, fontWeight: FontWeight.bold, color: Colors.white),
+            style: TextStyle(
+              fontSize: screenWidth * 0.045,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           ),
         ),
       ),
@@ -419,17 +495,29 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
   }
 
   // -------------------- TextField --------------------
-  Widget _buildTextField(String hint, IconData icon, {bool obscure = false, bool transparent = false}) {
+  Widget _buildTextField(
+    String hint,
+    IconData icon, {
+    bool obscure = false,
+    bool transparent = false,
+    TextEditingController? controller,
+  }) {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return TextField(
+      controller: controller,
       obscureText: obscure,
       decoration: InputDecoration(
         hintText: hint,
         filled: true,
-        fillColor: transparent ? Colors.transparent : Colors.grey[100]?.withOpacity(0.8),
+        fillColor: transparent
+            ? Colors.transparent
+            : Colors.grey[100]?.withOpacity(0.8),
         prefixIcon: Icon(icon, color: Colors.grey[700]),
-        contentPadding: EdgeInsets.symmetric(vertical: screenWidth * 0.04, horizontal: screenWidth * 0.04),
+        contentPadding: EdgeInsets.symmetric(
+          vertical: screenWidth * 0.04,
+          horizontal: screenWidth * 0.04,
+        ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Colors.grey.shade300),
@@ -449,8 +537,6 @@ class AdminApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: Text('Admin Dashboard')),
-    );
+    return const Scaffold(body: Center(child: Text('Admin Dashboard')));
   }
 }
