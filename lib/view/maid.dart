@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'maid_book.dart';
-import 'pick_date.dart';    
+import 'pick_date.dart';
 
 class MaidScreen extends StatefulWidget {
   const MaidScreen({super.key});
@@ -15,7 +15,9 @@ class _MaidScreenState extends State<MaidScreen> {
   DateTime? endDate;
 
   Future<void> pickDate({required bool isStart}) async {
-    DateTime initialDate = isStart ? (startDate ?? DateTime.now()) : (endDate ?? DateTime.now());
+    DateTime initialDate = isStart
+        ? (startDate ?? DateTime.now())
+        : (endDate ?? DateTime.now());
     DateTime? picked = await showDatePicker(
       context: context,
       initialDate: initialDate,
@@ -26,7 +28,9 @@ class _MaidScreenState extends State<MaidScreen> {
       setState(() {
         if (isStart) {
           startDate = picked;
-          if (selectedOption != "regular" && endDate != null && picked.isAfter(endDate!)) {
+          if (selectedOption != "regular" &&
+              endDate != null &&
+              picked.isAfter(endDate!)) {
             endDate = null;
           }
         } else {
@@ -38,7 +42,8 @@ class _MaidScreenState extends State<MaidScreen> {
 
   bool isContinueEnabled() {
     if (selectedOption == "regular") return startDate != null;
-    if (selectedOption == "monthly" || selectedOption == "festive") return startDate != null && endDate != null;
+    if (selectedOption == "monthly" || selectedOption == "festive")
+      return startDate != null && endDate != null;
     return false;
   }
 
@@ -53,17 +58,17 @@ class _MaidScreenState extends State<MaidScreen> {
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text("Choose Maid Type", style: TextStyle(color: Colors.white)),
+        title: const Text(
+          "Choose Maid Type",
+          style: TextStyle(color: Colors.white),
+        ),
         centerTitle: true,
       ),
       body: Stack(
         children: [
           // Wallpaper
           SizedBox.expand(
-            child: Image.asset(
-              "assets/maid.jpg",
-              fit: BoxFit.cover,
-            ),
+            child: Image.asset("assets/maid.jpg", fit: BoxFit.cover),
           ),
           // Transparent overlay
           Container(color: Colors.black.withOpacity(0.3)),
@@ -85,19 +90,33 @@ class _MaidScreenState extends State<MaidScreen> {
                           MaterialPageRoute(
                             builder: (_) => MaidBookingScreen(
                               bookingType: selectedOption!.toUpperCase(),
-                                startDate: startDate!, // pass the selected start date
-      endDate: endDate, 
+                              startDate:
+                                  startDate!, // pass the selected start date
+                              endDate: endDate,
                             ),
                           ),
                         );
                       }
                     : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: isContinueEnabled() ? Colors.green : Colors.grey,
-                  padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  backgroundColor: isContinueEnabled()
+                      ? const Color.fromARGB(255, 19, 24, 19)
+                      : Colors.grey,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 50,
+                    vertical: 14,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
                 ),
-                child: const Text("Continue", style: TextStyle(fontSize: 18)),
+                child: const Text(
+                  "Continue",
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.white, // 🔥 makes the text white
+                  ),
+                ),
               ),
             ],
           ),
@@ -122,7 +141,9 @@ class _MaidScreenState extends State<MaidScreen> {
         margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
         padding: const EdgeInsets.symmetric(vertical: 20),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.green.withOpacity(0.6) : Colors.white.withOpacity(0.3),
+          color: isSelected
+              ? const Color.fromARGB(255, 5, 11, 5).withOpacity(0.6)
+              : Colors.white.withOpacity(0.3),
           borderRadius: BorderRadius.circular(25),
           border: Border.all(color: Colors.white.withOpacity(0.6)),
         ),
@@ -130,7 +151,10 @@ class _MaidScreenState extends State<MaidScreen> {
         child: Text(
           title,
           style: const TextStyle(
-              fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
       ),
     );

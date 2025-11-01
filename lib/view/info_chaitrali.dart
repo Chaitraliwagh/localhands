@@ -3,7 +3,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'dart:math';
 
 import 'package:localhands_app/view/docs_chaitrali.dart';
-import 'package:localhands_app/view/login.dart';
+import 'package:localhands_app/view/home_chaitrali.dart';
+import 'package:localhands_app/home/login.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class BasicInfoScreen extends StatefulWidget {
   const BasicInfoScreen({super.key});
@@ -35,8 +38,30 @@ class _BasicInfoScreenState extends State<BasicInfoScreen>
   ];
 
   @override
+  @override
   void initState() {
     super.initState();
+
+    // ✅ Check if user is verified
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      FirebaseFirestore.instance.collection('users').doc(user.uid).get().then((
+        doc,
+      ) {
+        if (doc.exists && doc['isVerified'] == true) {
+          // User is already verified — skip info and doc screens
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("✅ You’re already verified!")),
+            );
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const PartnerDashboard()),
+            );
+          });
+        }
+      });
+    }
 
     // Initialize button gradient
     _buttonGradient = LinearGradient(
@@ -132,6 +157,23 @@ class _BasicInfoScreenState extends State<BasicInfoScreen>
                           },
                         ),
                       ),
+                      Align(
+                        alignment: Alignment.topRight,
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.arrow_forward,
+                            color: Colors.black87,
+                          ),
+                          onPressed: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const PartnerDashboard(),
+                              ),
+                            ); // Go back to login screen
+                          },
+                        ),
+                      ),
 
                       const SizedBox(height: 10),
                       Row(
@@ -163,16 +205,13 @@ class _BasicInfoScreenState extends State<BasicInfoScreen>
                         style: GoogleFonts.poppins(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
-                          foreground:
-                              Paint()
-                                ..shader = LinearGradient(
-                                  colors: [
-                                    hexToColor("#1D828E"),
-                                    hexToColor("#1A237E"),
-                                  ],
-                                ).createShader(
-                                  const Rect.fromLTWH(0, 0, 200, 70),
-                                ),
+                          foreground: Paint()
+                            ..shader = LinearGradient(
+                              colors: [
+                                hexToColor("#1D828E"),
+                                hexToColor("#1A237E"),
+                              ],
+                            ).createShader(const Rect.fromLTWH(0, 0, 200, 70)),
                           shadows: [
                             const Shadow(
                               color: Colors.black26,
@@ -214,11 +253,9 @@ class _BasicInfoScreenState extends State<BasicInfoScreen>
                               ),
                               border: InputBorder.none,
                             ),
-                            validator:
-                                (value) =>
-                                    value!.isEmpty
-                                        ? "Please enter your name"
-                                        : null,
+                            validator: (value) => value!.isEmpty
+                                ? "Please enter your name"
+                                : null,
                           ),
                         ),
                       ),
@@ -245,33 +282,30 @@ class _BasicInfoScreenState extends State<BasicInfoScreen>
                               ),
                               border: InputBorder.none,
                             ),
-                            items:
-                                workFields.map((field) {
-                                  return DropdownMenuItem(
-                                    value: field,
-                                    child: Row(
-                                      children: [
-                                        Icon(
-                                          Icons.arrow_right,
-                                          size: 18,
-                                          color: hexToColor("#1A237E"),
-                                        ),
-                                        const SizedBox(width: 6),
-                                        Text(field),
-                                      ],
+                            items: workFields.map((field) {
+                              return DropdownMenuItem(
+                                value: field,
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.arrow_right,
+                                      size: 18,
+                                      color: hexToColor("#1A237E"),
                                     ),
-                                  );
-                                }).toList(),
+                                    const SizedBox(width: 6),
+                                    Text(field),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
                             onChanged: (value) {
                               setState(() {
                                 _selectedWorkField = value;
                               });
                             },
-                            validator:
-                                (value) =>
-                                    value == null
-                                        ? "Please select your work field"
-                                        : null,
+                            validator: (value) => value == null
+                                ? "Please select your work field"
+                                : null,
                           ),
                         ),
                       ),
@@ -298,11 +332,9 @@ class _BasicInfoScreenState extends State<BasicInfoScreen>
                               ),
                               border: InputBorder.none,
                             ),
-                            validator:
-                                (value) =>
-                                    value!.isEmpty
-                                        ? "Please enter your address"
-                                        : null,
+                            validator: (value) => value!.isEmpty
+                                ? "Please enter your address"
+                                : null,
                           ),
                         ),
                       ),
@@ -337,9 +369,8 @@ class _BasicInfoScreenState extends State<BasicInfoScreen>
                                     Navigator.pushReplacement(
                                       context,
                                       MaterialPageRoute(
-                                        builder:
-                                            (context) =>
-                                                const DocumentationScreen(),
+                                        builder: (context) =>
+                                            const DocumentationScreen(),
                                       ),
                                     );
                                   }

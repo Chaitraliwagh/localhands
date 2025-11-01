@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
+import 'package:localhands_app/view/login.dart';
+
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
@@ -55,7 +57,7 @@ class ProfileScreen extends StatelessWidget {
               const Text(
                 "Sejal Patil",
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Color.fromARGB(255, 8, 8, 8),
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
@@ -90,7 +92,19 @@ class ProfileScreen extends StatelessWidget {
                     _buildTile(Icons.notifications, "Notifications"),
                     _buildTile(Icons.settings, "Settings"),
                     _buildTile(Icons.help_outline, "Help & Support"),
-                    _buildTile(Icons.logout, "Logout", color: Colors.redAccent),
+                    _buildTile(
+                      Icons.logout,
+                      "Logout",
+                      color: Colors.redAccent,
+                      onTap: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const AuthScreen(),
+                          ),
+                        );
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -116,13 +130,18 @@ class ProfileScreen extends StatelessWidget {
     ),
   );
 
-  Widget _buildTile(IconData icon, String title, {Color? color}) => ListTile(
+  Widget _buildTile(
+    IconData icon,
+    String title, {
+    Color? color,
+    VoidCallback? onTap,
+  }) => ListTile(
     leading: Icon(icon, color: color ?? Colors.teal[700]),
     title: Text(
       title,
       style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
     ),
-    onTap: () {},
+    onTap: onTap ?? () {},
   );
 }
 

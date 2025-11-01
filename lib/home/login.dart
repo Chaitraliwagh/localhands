@@ -22,6 +22,9 @@ class _AuthScreenState extends State<AuthScreen>
 
   late TabController _tabController;
 
+  static const Color _themeStart = Color(0xFF1D828E);
+  static const Color _themeEnd = Color(0xFF33C47F);
+
   final List<Map<String, String>> _slides = [
     {
       'file': 'assets/electrician.json',
@@ -59,6 +62,7 @@ class _AuthScreenState extends State<AuthScreen>
   @override
   void dispose() {
     _tabController.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
@@ -68,104 +72,52 @@ class _AuthScreenState extends State<AuthScreen>
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          // --- Subtle watermark logo background ---
-          Opacity(
-            opacity: 0.08,
-            child: Center(
-              child: Image.asset(
-                'assets/logo.jpeg',
-                width: screenWidth * 0.9,
-                height: screenWidth * 0.9,
-                fit: BoxFit.contain,
-              ),
+          // ✅ Watermark visible on both pages
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.10,
+              child: Image.asset('assets/logo.jpeg', fit: BoxFit.contain),
             ),
           ),
+
           SafeArea(
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
               child: Column(
                 children: [
-                  // --- Gradient Header with Lottie animations ---
-                  Container(
-                    width: double.infinity,
-                    height: screenHeight * 0.32,
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Color(0xFF1D828E), Color(0xFF33C47F)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+                  SizedBox(height: screenHeight * 0.05),
+
+                  // Title
+                  ShaderMask(
+                    shaderCallback: (bounds) => LinearGradient(
+                      colors: [hexToColor("#1D828E"), hexToColor("#1A237E")],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ).createShader(bounds),
+                    child: Text(
+                      "Welcome to LocalHands",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: screenWidth * 0.085,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.3,
+                        color: Colors.white, // gradient fills this text
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withOpacity(0.25),
+                            blurRadius: 8,
+                            offset: const Offset(2, 2),
+                          ),
+                        ],
                       ),
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(50),
-                        bottomRight: Radius.circular(50),
-                      ),
-                    ),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        // Background wave animation
-                        Positioned.fill(
-                          child: Opacity(
-                            opacity: 0.2,
-                            child: Lottie.asset(
-                              'assets/Hashtag Loader.json',
-                              fit: BoxFit.cover,
-                              repeat: true,
-                            ),
-                          ),
-                        ),
-                        // Floating animation
-                        Positioned(
-                          top: screenHeight * 0.05,
-                          child: Lottie.asset(
-                            'assets/help.json',
-                            height: screenHeight * 0.15,
-                          ),
-                        ),
-                        // Welcome text
-                        Positioned(
-                          bottom: screenHeight * 0.05,
-                          child: Column(
-                            children: [
-                              Text(
-                                "Welcome to LocalHands",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: screenWidth * 0.08,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: 1.2,
-                                  color: Colors.white,
-                                  shadows: const [
-                                    Shadow(
-                                      color: Colors.black45,
-                                      blurRadius: 8,
-                                      offset: Offset(2, 2),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(height: screenHeight * 0.01),
-                              Text(
-                                "Empowering Local Connections 🤝",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: screenWidth * 0.04,
-                                  color: Colors.white70,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
                     ),
                   ),
-                  SizedBox(height: screenHeight * 0.02),
-                  // --- Main Content (Animated Switcher) ---
+
+                  SizedBox(height: screenHeight * 0.03),
+
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 500),
                     child: _showSignUp
@@ -183,17 +135,18 @@ class _AuthScreenState extends State<AuthScreen>
     );
   }
 
-  // -------------------- Get Started Screen --------------------
+  // 🌿 Get Started Screen
   Widget _buildGetStartedScreen() {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Column(
       key: const ValueKey('get_started'),
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
+        // Centered Animation
         SizedBox(
-          height: screenHeight * 0.3,
+          height: screenHeight * 0.35,
           child: PageView.builder(
             controller: _pageController,
             onPageChanged: (index) => setState(() => _currentPage = index),
@@ -205,105 +158,108 @@ class _AuthScreenState extends State<AuthScreen>
             ),
           ),
         ),
-        SizedBox(height: screenHeight * 0.02),
-        Text(
-          _slides[_currentPage]['caption']!,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: screenWidth * 0.045,
-            fontWeight: FontWeight.w500,
-            color: const Color(0xFF1D828E),
+
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.08),
+          child: Text(
+            _slides[_currentPage]['caption']!,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: screenWidth * 0.045,
+              fontWeight: FontWeight.w500,
+              color: _themeStart,
+            ),
           ),
         ),
-        SizedBox(height: screenHeight * 0.04),
-        SizedBox(
-          width: screenWidth * 0.5,
-          child: _buildGradientButton("Get Started", () {
-            setState(() {
-              _showSignIn = true;
-            });
-          }),
+
+        // Get Started button at bottom
+        Padding(
+          padding: EdgeInsets.only(bottom: screenHeight * 0.07, top: 40),
+          child: SizedBox(
+            width: screenWidth * 0.55,
+            child: _buildGradientButton("Get Started", () {
+              setState(() => _showSignIn = true);
+            }),
+          ),
         ),
       ],
     );
   }
 
-  // -------------------- Glass Form --------------------
+  // 🌿 Login/Signup Form
   Widget _buildGlassForm({required bool isSignUp}) {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
 
-    return Center(
-      child: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: screenWidth * 0.06,
-            vertical: screenHeight * 0.02,
+    return Column(
+      key: ValueKey(isSignUp ? 'signup' : 'signin'),
+      children: [
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.08),
+          padding: EdgeInsets.all(screenWidth * 0.07),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.3), // ✅ flat white
+            borderRadius: BorderRadius.circular(25),
+            border: Border.all(color: _themeStart, width: 2),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.08),
+                blurRadius: 10,
+                offset: const Offset(0, 6),
+              ),
+            ],
           ),
-          child: Container(
-            padding: EdgeInsets.all(screenWidth * 0.05),
-            decoration: BoxDecoration(
-              color: Colors.transparent,
-              borderRadius: BorderRadius.circular(25),
-              border: Border.all(color: const Color(0xFF1D828E), width: 2),
-            ),
-            constraints: BoxConstraints(
-              maxWidth: 500,
-              minHeight: screenHeight * 0.35,
-              maxHeight: screenHeight * 0.75,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  isSignUp ? "Create Account" : "Sign In",
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                isSignUp ? "Create Account" : "Sign In",
+                style: TextStyle(
+                  fontSize: screenWidth * 0.065,
+                  fontWeight: FontWeight.bold,
+                  color: _themeStart,
+                ),
+              ),
+              SizedBox(height: screenHeight * 0.05),
+              _buildTabBarLogin(isSignUp: isSignUp),
+              SizedBox(height: screenHeight * 0.02),
+              RichText(
+                text: TextSpan(
+                  text: isSignUp
+                      ? "Already have an account? "
+                      : "Don't have an account? ",
                   style: TextStyle(
-                    fontSize: screenWidth * 0.07,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF1D828E),
+                    color: Colors.black87,
+                    fontSize: screenWidth * 0.04,
                   ),
-                ),
-                SizedBox(height: screenHeight * 0.03),
-                _buildTabBarLogin(isSignUp: isSignUp),
-                SizedBox(height: screenHeight * 0.02),
-                RichText(
-                  text: TextSpan(
-                    text: isSignUp
-                        ? "Already have an account? "
-                        : "Don't have an account? ",
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: screenWidth * 0.04,
-                    ),
-                    children: [
-                      TextSpan(
-                        text: isSignUp ? "Sign In" : "Sign Up",
-                        style: const TextStyle(
-                          color: Colors.blue,
-                          fontWeight: FontWeight.bold,
-                          decoration: TextDecoration.underline,
-                        ),
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () {
-                            setState(() {
-                              _showSignUp = !isSignUp;
-                              _showSignIn = isSignUp;
-                            });
-                          },
+                  children: [
+                    TextSpan(
+                      text: isSignUp ? "Sign In" : "Sign Up",
+                      style: TextStyle(
+                        color: _themeStart,
+                        fontWeight: FontWeight.bold,
+                        decoration: TextDecoration.underline,
                       ),
-                    ],
-                  ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () {
+                          setState(() {
+                            _showSignUp = !isSignUp;
+                            _showSignIn = isSignUp;
+                          });
+                        },
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
-      ),
+        SizedBox(height: screenHeight * 0.04),
+      ],
     );
   }
 
-  // -------------------- TabBar --------------------
+  // 🌿 TabBar
   Widget _buildTabBarLogin({required bool isSignUp}) {
     final screenHeight = MediaQuery.of(context).size.height;
 
@@ -312,13 +268,16 @@ class _AuthScreenState extends State<AuthScreen>
       child: Column(
         children: [
           Container(
-            margin: const EdgeInsets.symmetric(horizontal: 8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(30),
+            ),
             child: TabBar(
               controller: _tabController,
-              indicatorColor: const Color(0xFF1D828E),
+              indicatorColor: _themeStart,
               indicatorWeight: 3,
-              labelColor: const Color(0xFF1D828E),
-              unselectedLabelColor: Colors.black,
+              labelColor: _themeStart,
+              unselectedLabelColor: Colors.black54,
               tabs: const [
                 Tab(text: "Admin"),
                 Tab(text: "Worker"),
@@ -328,7 +287,7 @@ class _AuthScreenState extends State<AuthScreen>
           ),
           SizedBox(height: screenHeight * 0.02),
           SizedBox(
-            height: screenHeight * 0.35,
+            height: screenHeight * 0.42,
             child: TabBarView(
               controller: _tabController,
               children: [
@@ -343,10 +302,10 @@ class _AuthScreenState extends State<AuthScreen>
     );
   }
 
+  // 🌿 Login Form per user type
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  // -------------------- Single Login Form --------------------
   Widget _singleLoginForm(String type, {required bool isSignUp}) {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -355,30 +314,32 @@ class _AuthScreenState extends State<AuthScreen>
       physics: const BouncingScrollPhysics(),
       child: Container(
         padding: EdgeInsets.all(screenWidth * 0.04),
-        constraints: BoxConstraints(maxHeight: screenHeight * 0.5),
         decoration: BoxDecoration(
-          color: Colors.transparent,
+          color: Colors.white,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0xFF1D828E), width: 2),
+          border: Border.all(color: _themeStart, width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             _buildTextField(
               "$type Email",
               Icons.email,
               controller: _emailController,
-              transparent: true,
             ),
-
+            const SizedBox(height: 12),
             _buildTextField(
               "$type Password",
               Icons.lock,
               controller: _passwordController,
               obscure: true,
-              transparent: true,
             ),
-
             SizedBox(height: screenHeight * 0.02),
             _buildGradientButton(
               isSignUp ? "Sign Up" : "Sign In as $type",
@@ -386,7 +347,6 @@ class _AuthScreenState extends State<AuthScreen>
                 try {
                   final email = _emailController.text.trim();
                   final password = _passwordController.text.trim();
-
                   if (email.isEmpty || password.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
@@ -395,7 +355,6 @@ class _AuthScreenState extends State<AuthScreen>
                     );
                     return;
                   }
-
                   if (isSignUp) {
                     await FirebaseAuth.instance.createUserWithEmailAndPassword(
                       email: email,
@@ -408,7 +367,6 @@ class _AuthScreenState extends State<AuthScreen>
                     );
                   }
 
-                  // Navigate after successful login/signup
                   if (type == "Admin") {
                     Navigator.pushReplacement(
                       context,
@@ -446,33 +404,23 @@ class _AuthScreenState extends State<AuthScreen>
     );
   }
 
-  // -------------------- Gradient Button --------------------
+  // 🌿 Button
   Widget _buildGradientButton(String text, VoidCallback onPressed) {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return ElevatedButton(
       onPressed: onPressed,
-      style:
-          ElevatedButton.styleFrom(
-            padding: EdgeInsets.symmetric(
-              vertical: screenWidth * 0.04,
-              horizontal: screenWidth * 0.1,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
-            ),
-            elevation: 5,
-            backgroundColor: Colors.transparent,
-            shadowColor: Colors.black45,
-          ).copyWith(
-            backgroundColor: MaterialStateProperty.resolveWith<Color?>(
-              (states) => null,
-            ),
-          ),
+      style: ElevatedButton.styleFrom(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+        padding: EdgeInsets.zero,
+        elevation: 5,
+        shadowColor: Colors.black26,
+        backgroundColor: Colors.transparent,
+      ),
       child: Ink(
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFF1D828E), Color(0xFF33C47F)],
+          gradient: LinearGradient(
+            colors: [hexToColor("#1D828E"), hexToColor("#1A237E")],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -480,7 +428,10 @@ class _AuthScreenState extends State<AuthScreen>
         ),
         child: Container(
           alignment: Alignment.center,
-          constraints: BoxConstraints(minWidth: screenWidth * 0.3),
+          constraints: BoxConstraints(
+            minWidth: screenWidth * 0.3,
+            minHeight: 50,
+          ),
           child: Text(
             text,
             style: TextStyle(
@@ -494,12 +445,11 @@ class _AuthScreenState extends State<AuthScreen>
     );
   }
 
-  // -------------------- TextField --------------------
+  // 🌿 TextField
   Widget _buildTextField(
     String hint,
     IconData icon, {
     bool obscure = false,
-    bool transparent = false,
     TextEditingController? controller,
   }) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -510,9 +460,7 @@ class _AuthScreenState extends State<AuthScreen>
       decoration: InputDecoration(
         hintText: hint,
         filled: true,
-        fillColor: transparent
-            ? Colors.transparent
-            : Colors.grey[100]?.withOpacity(0.8),
+        fillColor: Colors.grey[100],
         prefixIcon: Icon(icon, color: Colors.grey[700]),
         contentPadding: EdgeInsets.symmetric(
           vertical: screenWidth * 0.04,
@@ -524,19 +472,9 @@ class _AuthScreenState extends State<AuthScreen>
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF1D828E), width: 2),
+          borderSide: const BorderSide(color: _themeStart, width: 2),
         ),
       ),
     );
-  }
-}
-
-// -------------------- AdminApp --------------------
-class AdminApp extends StatelessWidget {
-  const AdminApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: Text('Admin Dashboard')));
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:localhands_app/view/info_chaitrali.dart';
+import 'package:localhands_app/view/chatscreen.dart';
 import 'package:localhands_app/view/viewdetails_chaitrali.dart';
 
 class JobsScreen extends StatefulWidget {
@@ -390,7 +390,17 @@ class _JobsScreenState extends State<JobsScreen> with TickerProviderStateMixin {
   /// 🔹 Call button (used in Ongoing & Upcoming)
   Widget _buildCallButton() {
     return ElevatedButton.icon(
-      onPressed: () {},
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChatScreen(
+              chatId: 'user123_worker456', // fixed unique id for both
+              currentUserId: 'worker456',
+            ),
+          ),
+        );
+      },
       icon: const Icon(Icons.phone),
       label: Text(
         "Call",

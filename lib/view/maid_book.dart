@@ -1,22 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:localhands_app/view/scheduleScreen.dart';
-import 'pick_date.dart';
-
+import 'workerProfile.dart';
 
 class MaidBookingScreen extends StatefulWidget {
   final String bookingType;
-   final DateTime startDate;
+  final DateTime startDate;
   final DateTime? endDate;
 
-  const MaidBookingScreen({super.key, required this.bookingType,
-  required this.startDate, this.endDate});
+  const MaidBookingScreen({
+    super.key,
+    required this.bookingType,
+    required this.startDate,
+    this.endDate,
+  });
 
   @override
   State<MaidBookingScreen> createState() => _MaidBookingScreenState();
 }
 
 class _MaidBookingScreenState extends State<MaidBookingScreen> {
-  final List<Map<String, dynamic>> maids = [
+  final List<Map<String, dynamic>> workers = [
     {
       'name': 'Anita',
       'image': 'assets/maid1.jpg',
@@ -43,57 +45,47 @@ class _MaidBookingScreenState extends State<MaidBookingScreen> {
     },
   ];
 
-  Future<void> openSchedule(Map<String, dynamic> maid) async {
-  DateTime startDate = widget.startDate;
-  DateTime? endDate = widget.endDate;
-
-  await Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (_) => ScheduleScreen(
-        profile: maid,
-        bookingStep: 0,
-        onStepChanged: (_) {},
-        category: widget.bookingType,
-        startDate: startDate,
-        endDate: endDate,
+  void openProfile(Map<String, dynamic> worker) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) =>
+            WorkerProfilePage(profile: worker, category: widget.bookingType),
       ),
-    ),
-  );
-}
-
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text("${widget.bookingType} Maids"),
+        title: Text("${widget.bookingType} Service"),
         backgroundColor: Colors.transparent,
         centerTitle: true,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
       ),
       body: Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF1D828E), Color(0xFF32BD75)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+          image: DecorationImage(
+            image: AssetImage('assets/maid.jpg'), // your wallpaper image
+            fit: BoxFit.cover, // fills the screen properly
           ),
         ),
         child: SafeArea(
-          child: ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: maids.length,
-            itemBuilder: (context, index) {
-              final maid = maids[index];
-              return GestureDetector(
-                onTap: () => openSchedule(maid),
-                child: Container(
+          child: Container(
+            // optional: add slight overlay for better text visibility
+            decoration: BoxDecoration(color: Colors.black.withOpacity(0.6)),
+            child: ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: workers.length,
+              itemBuilder: (context, index) {
+                final worker = workers[index];
+                return Container(
                   margin: const EdgeInsets.only(bottom: 16),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -105,7 +97,7 @@ class _MaidBookingScreenState extends State<MaidBookingScreen> {
                     children: [
                       CircleAvatar(
                         radius: 30,
-                        backgroundImage: AssetImage(maid['image']),
+                        backgroundImage: AssetImage(worker['image']),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
@@ -113,44 +105,61 @@ class _MaidBookingScreenState extends State<MaidBookingScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              maid['name'],
+                              worker['name'],
                               style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold),
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             const SizedBox(height: 4),
                             Row(
                               children: [
-                                const Icon(Icons.star,
-                                    color: Colors.amber, size: 16),
+                                const Icon(
+                                  Icons.star,
+                                  color: Colors.amber,
+                                  size: 16,
+                                ),
                                 const SizedBox(width: 4),
-                                Text('${maid['rating']}',
-                                    style: const TextStyle(color: Colors.white)),
+                                Text(
+                                  '${worker['rating']}',
+                                  style: const TextStyle(color: Colors.white),
+                                ),
                                 const SizedBox(width: 16),
-                                Text('${maid['experience']} yrs',
-                                    style: const TextStyle(color: Colors.white)),
+                                Text(
+                                  '${worker['experience']} yrs',
+                                  style: const TextStyle(color: Colors.white),
+                                ),
                               ],
                             ),
                             const SizedBox(height: 4),
-                            Text('₹${maid['cost']} per hour',
-                                style: const TextStyle(color: Colors.white)),
+                            Text(
+                              '₹${worker['cost']} per hour',
+                              style: const TextStyle(color: Colors.white),
+                            ),
                             const SizedBox(height: 4),
                             Text(
-                              (maid['services'] as List<dynamic>? ?? [])
-                                  .join(", "),
+                              (worker['services'] as List<dynamic>? ?? []).join(
+                                ", ",
+                              ),
                               style: const TextStyle(color: Colors.white70),
                             ),
                           ],
                         ),
                       ),
-                      const Icon(Icons.arrow_forward_ios,
-                          color: Colors.white, size: 16),
+                      GestureDetector(
+                        onTap: () => openProfile(worker),
+                        child: const Icon(
+                          Icons.arrow_forward_ios,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                      ),
                     ],
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ),
       ),
