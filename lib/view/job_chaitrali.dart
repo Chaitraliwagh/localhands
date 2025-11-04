@@ -391,16 +391,17 @@ class _JobsScreenState extends State<JobsScreen> with TickerProviderStateMixin {
   Widget _buildCallButton() {
     return ElevatedButton.icon(
       onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ChatScreen(
-              chatId: 'user123_worker456', // fixed unique id for both
-              currentUserId: 'worker456',
-            ),
-          ),
-        );
-      },
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ChatScreen(
+                                      currentUserId: "user_123", // for user
+                                      chatId:
+                                          "user_123_worker_456", // shared room
+                                    ),
+                                  ),
+                                );
+                              },
       icon: const Icon(Icons.phone),
       label: Text(
         "Call",

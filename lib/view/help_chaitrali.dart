@@ -267,8 +267,8 @@ If a user asks something unrelated, gently redirect them to worker-related help.
                     context,
                     MaterialPageRoute(
                       builder: (context) => ChatScreen(
-                        chatId: 'user123_worker456', // fixed unique id for both
-                        currentUserId: 'worker456',
+                        currentUserId: "worker_456", // for worker
+                        chatId: "user_123_worker_456", // same chatId as above
                       ),
                     ),
                   );

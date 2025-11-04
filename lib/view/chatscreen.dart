@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:uuid/uuid.dart'; // for generating unique user IDs
-import 'package:shared_preferences/shared_preferences.dart'; // to store user id locally
+import 'package:uuid/uuid.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Color hexToColor(String hex) {
   hex = hex.replaceAll("#", "");
@@ -10,43 +10,53 @@ Color hexToColor(String hex) {
 }
 
 class ChatScreen extends StatefulWidget {
+  final String currentUserId; // ✅ from user or worker
+  final String chatId; // ✅ common room for both
+
   const ChatScreen({
     super.key,
-    required String currentUserId,
-    required String chatId,
+    required this.currentUserId,
+    required this.chatId,
   });
+
   @override
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  final DatabaseReference _dbRef = FirebaseDatabase.instance.ref().child(
-    'messages',
-  );
+  DatabaseReference? _chatRef;
   final TextEditingController _msgController = TextEditingController();
   String? userId;
 
   @override
   void initState() {
     super.initState();
-    _loadOrCreateUserId();
+    _initializeChat();
   }
 
-  Future<void> _loadOrCreateUserId() async {
+  Future<void> _initializeChat() async {
     final prefs = await SharedPreferences.getInstance();
+
+    // ✅ Local user ID (unique for device)
     userId = prefs.getString('userId');
     if (userId == null) {
       userId = const Uuid().v4();
       await prefs.setString('userId', userId!);
     }
+
+    // ✅ Create shared chat reference using chatId
+    _chatRef = FirebaseDatabase.instance.ref().child(
+      'chats/${widget.chatId}/messages',
+    );
+
     setState(() {});
   }
 
   void sendMessage() {
     if (_msgController.text.trim().isNotEmpty && userId != null) {
-      _dbRef.push().set({
+      _chatRef!.push().set({
         'text': _msgController.text.trim(),
-        'senderId': userId,
+        'senderId': widget.currentUserId, // ✅ from parameter
         'timestamp': DateTime.now().millisecondsSinceEpoch,
       });
       _msgController.clear();
@@ -55,7 +65,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (userId == null) {
+    if (_chatRef == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
@@ -73,15 +83,11 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
         ),
-        elevation: 0,
       ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              hexToColor("#E0F7FA"), // light background tint
-              Colors.white,
-            ],
+            colors: [hexToColor("#E0F7FA"), Colors.white],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -90,10 +96,12 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             Expanded(
               child: StreamBuilder(
-                stream: _dbRef.orderByChild('timestamp').onValue,
+                stream: _chatRef!.orderByChild('timestamp').onValue,
                 builder: (context, snapshot) {
                   if (snapshot.hasData &&
-                      snapshot.data!.snapshot.value != null) {
+                      snapshot.data is DatabaseEvent &&
+                      (snapshot.data! as DatabaseEvent).snapshot.value !=
+                          null) {
                     final data = Map<dynamic, dynamic>.from(
                       (snapshot.data! as DatabaseEvent).snapshot.value as Map,
                     );
@@ -107,7 +115,8 @@ class _ChatScreenState extends State<ChatScreen> {
                     return ListView(
                       padding: const EdgeInsets.all(8),
                       children: messages.map((msg) {
-                        final bool isMe = msg.value['senderId'] == userId;
+                        final bool isMe =
+                            msg.value['senderId'] == widget.currentUserId;
 
                         return Align(
                           alignment: isMe

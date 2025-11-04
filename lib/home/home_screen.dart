@@ -1,16 +1,24 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 // Screens
 import 'package:localhands_app/beauty_screen.dart';
+import 'package:localhands_app/home/booking_page_sejal.dart';
 import 'package:localhands_app/home/notification.dart';
+import 'package:localhands_app/home/profile_drawer.dart';
+import 'package:localhands_app/home/service.dart';
 import 'package:localhands_app/plumber_screen.dart';
 import 'package:localhands_app/profile_sejal.dart';
-import 'package:localhands_app/view/booking_page_sejal.dart';
+
+import 'package:localhands_app/view/booking_new.dart';
+
 import 'package:localhands_app/view/maid.dart';
-import 'package:localhands_app/view/service.dart';
+import 'package:localhands_app/view/maid_loading_screen.dart';
+import 'package:localhands_app/view/plumberloader.dart';
+
 import 'package:localhands_app/view/womenSalon.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -25,6 +33,16 @@ class _HomeScreenState extends State<HomeScreen>
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _selectedIndex = 0;
 
+  String? name;
+  String? address;
+  bool isLoading = true;
+
+  // Carousel
+  late PageController _carouselController;
+  int _carouselPage = 0;
+  Timer? _carouselTimer;
+
+  // Popular & All services
   final List<Map<String, dynamic>> popularServices = [
     {"icon": Icons.content_cut, "title": "Salon"},
     {"icon": Icons.plumbing, "title": "Plumbing"},
@@ -46,21 +64,18 @@ class _HomeScreenState extends State<HomeScreen>
   ];
 
   final Map<String, Widget> screenMap = {
-    "Plumbing": const PlumberScreen(),
+    "Plumbing": const PlumbingLoadingScreen(),
     "Salon": const BeautyScreen(),
-    "Maid": const MaidScreen(),
-    "BabySitter": const MaidScreen(), // replace with BabysitterScreen if exists
+    "Maid": const MaidLoadingScreen(),
+    "BabySitter": const MaidScreen(),
   };
-
-  late PageController _carouselController;
-  int _carouselPage = 0;
-  Timer? _carouselTimer;
 
   @override
   void initState() {
     super.initState();
-    _carouselController = PageController(viewportFraction: 0.9);
+    _loadUserData();
 
+    _carouselController = PageController(viewportFraction: 0.9);
     _carouselTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
       if (_carouselController.hasClients) {
         setState(() {
@@ -75,6 +90,24 @@ class _HomeScreenState extends State<HomeScreen>
     });
   }
 
+  Future<void> _loadUserData() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .get();
+
+    if (userDoc.exists) {
+      setState(() {
+        name = userDoc['name'] ?? '';
+        address = userDoc['address'] ?? '';
+        isLoading = false;
+      });
+    }
+  }
+
   @override
   void dispose() {
     _carouselController.dispose();
@@ -86,7 +119,7 @@ class _HomeScreenState extends State<HomeScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      drawer: _buildDrawer(),
+      endDrawer: const ProfileDrawer(), // ✅ Right side drawer
       bottomNavigationBar: _buildBottomNavBar(),
       body: Stack(
         children: [
@@ -97,7 +130,6 @@ class _HomeScreenState extends State<HomeScreen>
               child: Image.asset('assets/logo.jpeg', fit: BoxFit.cover),
             ),
           ),
-          // Main Content
           Column(
             children: [
               _buildTopRectangle(),
@@ -121,74 +153,6 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
               ),
             ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  // -------------------- Bottom Navigation --------------------
-  Widget _buildBottomNavBar() {
-    return Container(
-      margin: const EdgeInsets.all(20),
-      height: 65,
-      decoration: BoxDecoration(
-        color: Colors.black,
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _navBarItem(Iconsax.home, "Home", 0),
-          _navBarItem(Iconsax.category, "Services", 1),
-          _navBarItem(Iconsax.card_tick, "Booking", 2),
-          _navBarItem(Iconsax.notification, "Notifications", 3),
-        ],
-      ),
-    );
-  }
-
-  Widget _navBarItem(IconData icon, String label, int index) {
-    final isSelected = _selectedIndex == index;
-    return GestureDetector(
-      onTap: () {
-        if (label == "Services") {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const ServiceScreen()),
-          );
-        } else if (label == "Booking") {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const BookingPage()),
-          );
-        } else if (label == "Notifications") {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const NotificationScreen()),
-          );
-        } else {
-          setState(() => _selectedIndex = index);
-        }
-      },
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, color: isSelected ? Colors.white : Colors.white54),
-          Text(
-            label,
-            style: TextStyle(
-              color: isSelected ? Colors.white : Colors.white54,
-              fontSize: 12,
-            ),
           ),
         ],
       ),
@@ -220,9 +184,9 @@ class _HomeScreenState extends State<HomeScreen>
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    "Hey Anushri 👋",
-                    style: TextStyle(
+                  Text(
+                    "Hey ${name ?? "User"} 👋",
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -235,27 +199,15 @@ class _HomeScreenState extends State<HomeScreen>
                 ],
               ),
               GestureDetector(
-  onTap: () {
-    Navigator.of(context).push(PageRouteBuilder(
-      opaque: false,
-      pageBuilder: (context, animation, secondaryAnimation) => SlideTransition(
-        position: Tween<Offset>(
-          begin: const Offset(1.0, 0.0), // slides from right
-          end: Offset.zero,
-        ).animate(CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeInOut,
-        )),
-        child: const _GlassyProfileOverlay(),
-      ),
-    ));
-  },
-  child: const CircleAvatar(
-    radius: 20,
-    backgroundImage: AssetImage("assets/profile.jpg"),
-  ),
-)
-
+                onTap: () {
+                  _scaffoldKey.currentState
+                      ?.openEndDrawer(); // ✅ Open RIGHT drawer
+                },
+                child: const CircleAvatar(
+                  radius: 20,
+                  backgroundImage: AssetImage("assets/profile.jpg"),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -286,6 +238,74 @@ class _HomeScreenState extends State<HomeScreen>
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  // -------------------- Bottom Navigation --------------------
+  Widget _buildBottomNavBar() {
+    return Container(
+      margin: const EdgeInsets.all(20),
+      height: 65,
+      decoration: BoxDecoration(
+        color: Colors.black,
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _navBarItem(Iconsax.home, "Home", 0),
+          _navBarItem(Iconsax.category, "Services", 1),
+          _navBarItem(Iconsax.card_tick, "Booking", 2),
+          _navBarItem(Icons.notifications, "Notifications", 3),
+        ],
+      ),
+    );
+  }
+
+  Widget _navBarItem(IconData icon, String label, int index) {
+    final isSelected = _selectedIndex == index;
+    return GestureDetector(
+      onTap: () {
+        setState(() => _selectedIndex = index);
+
+        if (label == "Services") {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const ServiceScreen()),
+          );
+        } else if (label == "Booking") {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const BookingPage()),
+          );
+        } else if (label == "Notifications") {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const NotificationScreen()),
+          );
+        }
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: isSelected ? Colors.white : Colors.white54),
+          Text(
+            label,
+            style: TextStyle(
+              color: isSelected ? Colors.white : Colors.white54,
+              fontSize: 12,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -355,7 +375,7 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  // -------------------- Services Carousel --------------------
+  // -------------------- Carousel --------------------
   Widget _buildServicesCarousel() {
     final List<Map<String, String>> carouselItems = [
       {
@@ -531,258 +551,81 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   // -------------------- Special Offer --------------------
-  Widget _buildSpecialOfferCard() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Container(
-        height: 180,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          gradient: LinearGradient(
-            colors: [Color(0xFF1D828E), Color.fromARGB(255, 50, 189, 117)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: const Center(
-          
-           child: Text(
-            "     Special Offer! Get 20% off on your  first booking.",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // -------------------- Drawer --------------------
-  Drawer _buildDrawer() {
-    return Drawer(
-      child: Stack(
-        children: [
-          // watermark
-          Positioned.fill(
-            child: Opacity(
-              opacity: 0.05,
-              child: Image.asset('assets/logoicon.png', fit: BoxFit.cover),
-            ),
-          ),
-
-          ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              ClipPath(
-                clipper: _WaveClipper(), // <-- constructor call
-                child: Container(
-                  width: double.infinity,
-                  height: 220,
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Color(0xFF003C6E), Color(0xFF007C91)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                  ),
-                  child: SafeArea(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 14,
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          CircleAvatar(
-                            radius: 40,
-                            backgroundImage: AssetImage(
-                              "assets/profilepic.jpg",
-                            ),
-                          ),
-                          SizedBox(height: 12),
-                          Text(
-                            "Sejal Patil",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.location_on,
-                                color: Colors.white70,
-                                size: 16,
-                              ),
-                              SizedBox(width: 4),
-                              Text(
-                                "Jalgaon, Maharashtra",
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 8),
-              _drawerTile(Icons.check_circle, "Completed Services"),
-              _drawerTile(Icons.cancel, "Cancelled Services"),
-              _drawerTile(Icons.timer, "Upcoming Services"),
-              const Divider(),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
-                child: Text(
-                  "Payments",
-                  style: TextStyle(
-                    color: Colors.black54,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                  ),
-                ),
-              ),
-              _drawerTile(Icons.credit_card, "Payment Methods"),
-              _drawerTile(
-                Icons.account_balance_wallet,
-                "Wallet & Transactions",
-              ),
-              _drawerTile(Icons.receipt_long, "Receipts"),
-              const Divider(),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
-                child: Text(
-                  "System",
-                  style: TextStyle(
-                    color: Colors.black54,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                  ),
-                ),
-              ),
-              _drawerTile(Icons.notifications, "Notifications"),
-              _drawerTile(Icons.dark_mode, "Dark Mode"),
-              _drawerTile(Icons.settings, "Settings"),
-              _drawerTile(Icons.help_outline, "Help & Support"),
-              _drawerTile(Icons.info_outline, "About Local Hands"),
-              const SizedBox(height: 12),
-              _drawerTile(Icons.logout, "Logout", color: Colors.redAccent),
-              const SizedBox(height: 24),
-            ],
+Widget _buildSpecialOfferCard() {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    child: Container(
+      height: 120,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        color: Color(0xFF1D828E),
+        boxShadow: [
+          BoxShadow(
+            color: Color(0xFF1D828E).withOpacity(0.3),
+            blurRadius: 8,
+            offset: Offset(0, 2),
           ),
         ],
       ),
-    );
-  }
-
-  ListTile _drawerTile(
-    IconData icon,
-    String title, {
-    Color color = Colors.black,
-  }) {
-    return ListTile(
-      leading: Icon(icon, color: color),
-      title: Text(
-        title,
-        style: TextStyle(fontWeight: FontWeight.w500, color: color),
-      ),
-      onTap: () {
-        if (title == "Profile") {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const ProfileScreen()),
-          );
-        }
-      },
-    );
-  }
-}
-
-class _WaveClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    final Path path = Path();
-    path.lineTo(0, size.height - 40);
-
-    // first curve
-    path.quadraticBezierTo(
-      size.width * 0.25,
-      size.height,
-      size.width * 0.5,
-      size.height - 30,
-    );
-
-    // second curve
-    path.quadraticBezierTo(
-      size.width * 0.75,
-      size.height - 80,
-      size.width,
-      size.height - 40,
-    );
-
-    path.lineTo(size.width, 0);
-    path.close();
-    return path;
-  }
-
-  @override
-  bool shouldReclip(covariant CustomClipper<Path> oldClipper) {
-    return false;
-  }
-}
-class _GlassyProfileOverlay extends StatelessWidget {
-  const _GlassyProfileOverlay({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black.withOpacity(0.3), // glassy backdrop
-      body: Stack(
+      child: Row(
         children: [
-          GestureDetector(
-            onTap: () => Navigator.pop(context), // tap outside to close
-            child: Container(color: Colors.transparent),
+          // Icon section
+          Container(
+            width: 80,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(16),
+                bottomLeft: Radius.circular(16),
+              ),
+            ),
+            child: Icon(
+              Icons.local_offer_rounded,
+              color: Colors.white,
+              size: 32,
+            ),
           ),
-          Align(
-            alignment: Alignment.centerRight,
-            child: Container(
-              width: MediaQuery.of(context).size.width * 0.8,
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.85), // glassy panel
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(30),
-                  bottomLeft: Radius.circular(30),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 10,
-                    offset: const Offset(-4, 0),
+          
+          // Text section
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "20% OFF",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    "First booking discount",
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 14,
+                    ),
                   ),
                 ],
               ),
-              child: const ClipRRect(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(30),
-                  bottomLeft: Radius.circular(30),
-                ),
-                child: ProfileScreen(), // your profile screen widget
-              ),
+            ),
+          ),
+          
+          // CTA
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Icon(
+              Icons.arrow_forward_rounded,
+              color: Colors.white,
             ),
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 }

@@ -1070,11 +1070,6 @@ class _LHStatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color iconColor = Colors.greenAccent;
-    if (icon == Icons.handyman) iconColor = Colors.orangeAccent;
-    if (icon == Icons.inbox) iconColor = Colors.purpleAccent;
-    if (icon == Icons.event_available) iconColor = Colors.blueAccent;
-
     return Container(
       width: 210,
       padding: const EdgeInsets.all(16),

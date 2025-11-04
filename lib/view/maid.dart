@@ -71,7 +71,7 @@ class _MaidScreenState extends State<MaidScreen> {
             child: Image.asset("assets/maid.jpg", fit: BoxFit.cover),
           ),
           // Transparent overlay
-          Container(color: Colors.black.withOpacity(0.3)),
+          Container(color: Colors.black.withOpacity(0.7)),
 
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -99,24 +99,11 @@ class _MaidScreenState extends State<MaidScreen> {
                       }
                     : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: isContinueEnabled()
-                      ? const Color.fromARGB(255, 19, 24, 19)
-                      : Colors.grey,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 50,
-                    vertical: 14,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
+                  backgroundColor: isContinueEnabled() ? const Color.fromARGB(255, 7, 11, 10) : Colors.grey,
+                  padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                 ),
-                child: const Text(
-                  "Continue",
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.white, // 🔥 makes the text white
-                  ),
-                ),
+                child: const Text("Continue", style: TextStyle(fontSize: 18, color: Colors.white)),
               ),
             ],
           ),
@@ -141,9 +128,7 @@ class _MaidScreenState extends State<MaidScreen> {
         margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
         padding: const EdgeInsets.symmetric(vertical: 20),
         decoration: BoxDecoration(
-          color: isSelected
-              ? const Color.fromARGB(255, 5, 11, 5).withOpacity(0.6)
-              : Colors.white.withOpacity(0.3),
+          color: isSelected ? const Color.fromARGB(255, 10, 16, 10).withOpacity(0.6) : Colors.white.withOpacity(0.3),
           borderRadius: BorderRadius.circular(25),
           border: Border.all(color: Colors.white.withOpacity(0.6)),
         ),

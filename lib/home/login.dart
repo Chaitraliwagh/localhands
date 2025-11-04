@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -13,8 +15,7 @@ class AuthScreen extends StatefulWidget {
   State<AuthScreen> createState() => _AuthScreenState();
 }
 
-class _AuthScreenState extends State<AuthScreen>
-    with SingleTickerProviderStateMixin {
+class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateMixin {
   final PageController _pageController = PageController();
   int _currentPage = 0;
   bool _showSignUp = false;
@@ -123,8 +124,8 @@ class _AuthScreenState extends State<AuthScreen>
                     child: _showSignUp
                         ? _buildGlassForm(isSignUp: true)
                         : _showSignIn
-                        ? _buildGlassForm(isSignUp: false)
-                        : _buildGetStartedScreen(),
+                            ? _buildGlassForm(isSignUp: false)
+                            : _buildGetStartedScreen(),
                   ),
                 ],
               ),
@@ -311,6 +312,7 @@ class _AuthScreenState extends State<AuthScreen>
     final screenWidth = MediaQuery.of(context).size.width;
 
     return SingleChildScrollView(
+      
       physics: const BouncingScrollPhysics(),
       child: Container(
         padding: EdgeInsets.all(screenWidth * 0.04),
@@ -349,55 +351,46 @@ class _AuthScreenState extends State<AuthScreen>
                   final password = _passwordController.text.trim();
                   if (email.isEmpty || password.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Please fill in all fields"),
-                      ),
+                      const SnackBar(content: Text("Please fill in all fields")),
                     );
                     return;
                   }
                   if (isSignUp) {
-                    await FirebaseAuth.instance.createUserWithEmailAndPassword(
-                      email: email,
-                      password: password,
-                    );
+                    await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
                   } else {
-                    await FirebaseAuth.instance.signInWithEmailAndPassword(
-                      email: email,
-                      password: password,
-                    );
+                    await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
                   }
 
                   if (type == "Admin") {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const LocalHandsAdminApp(),
-                      ),
-                    );
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LocalHandsAdminApp()));
                   } else if (type == "User") {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const HomeScreen(),
-                      ),
-                    );
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
                   } else if (type == "Worker") {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const SplashScreen(),
-                      ),
-                    );
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const SplashScreen()));
                   }
                 } on FirebaseAuthException catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(e.message ?? "Authentication failed"),
-                    ),
-                  );
+                  log("login failed");
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message ?? "Authentication failed")));
                 }
               },
             ),
+            const SizedBox(height: 10),
+TextButton(
+  onPressed: () {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const HomeScreen()),
+    );
+  },
+  child: const Text(
+    "Continue to Home (Temp)",
+    style: TextStyle(
+      color: Colors.teal,
+      fontWeight: FontWeight.bold,
+    ),
+  ),
+),
+
           ],
         ),
       ),

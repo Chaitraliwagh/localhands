@@ -1,12 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:localhands_app/home/login.dart';
 import 'dart:math';
 
 import 'package:localhands_app/view/docs_chaitrali.dart';
 import 'package:localhands_app/view/home_chaitrali.dart';
-import 'package:localhands_app/home/login.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class BasicInfoScreen extends StatefulWidget {
   const BasicInfoScreen({super.key});
