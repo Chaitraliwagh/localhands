@@ -8,7 +8,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:localhands_app/view/admin_doc_chaitrali.dart';
 import 'package:localhands_app/view/home_chaitrali.dart';
-import 'package:localhands_app/view/login.dart';
+import 'package:localhands_app/home/login.dart';
 import 'package:open_file/open_file.dart';
 
 class DocumentationScreen extends StatefulWidget {

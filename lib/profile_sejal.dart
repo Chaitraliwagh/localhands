@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
-import 'package:localhands_app/view/login.dart';
+import 'package:localhands_app/home/login.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});

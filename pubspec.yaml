@@ -11,6 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   lottie: ^2.3.1
+
    
   animated_text_kit: ^4.3.0
   geolocator: ^14.0.2
@@ -70,6 +71,10 @@ flutter:
     - assets/plumber.json
     - assets/bb987eec-c72f-4b6a-b8e5-383879c85b97.jpg
     - assets/painter.jpg
+    - assets/maintenance.json
+    - assets/Sandy_Loading.json
+    - assets/chef.json
+    - assets/Trail_loading.json
     
     - assets/3781959.jpg
     - assets/logoflutter.png
@@ -111,6 +116,7 @@ flutter:
     - assets/plumberwallpaper.jpg
     - assets/logoicon.png
     - assets/profilepic.jpg
+    - assets/Tools.json
 
     # 👇 Add your services folder (includes all 5 JPGs)
     - assets/services/
@@ -118,3 +124,4 @@ flutter:
 
     - assets/login/help.json
     - assets/login/hashtag loader.json
+    - assets/profilepic.jpg

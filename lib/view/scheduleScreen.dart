@@ -1,10 +1,11 @@
+
 import 'package:flutter/material.dart';
-import 'package:localhands_app/model/workermodel.dart';
+import 'package:localhands_app/model/workerModal.dart';
 
 class ScheduleScreen extends StatefulWidget {
-  final WorkerModel? worker; // nullable
+  final WorkerModel? worker;           // nullable
   final Map<String, dynamic>? profile; // nullable
-  final int bookingStep; // current step
+  final int bookingStep;               // current step
   final ValueChanged<int> onStepChanged;
   final String? category;
   final DateTime startDate;
@@ -32,7 +33,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     "Request Sent",
     "Service Booked",
     "Service Confirmed",
-    "Completed",
+    "Completed"
   ];
 
   @override
@@ -53,9 +54,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
             children: [
               CircleAvatar(
                 radius: 16,
-                backgroundColor: isCompleted || isCurrent
-                    ? Colors.green
-                    : Colors.grey[300],
+                backgroundColor:
+                    isCompleted || isCurrent ? Colors.green : Colors.grey[300],
                 child: isCompleted
                     ? const Icon(Icons.check, color: Colors.white, size: 18)
                     : Text(
@@ -75,9 +75,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
-                    color: isCurrent || isCompleted
-                        ? Colors.green
-                        : Colors.black54,
+                    color: isCurrent || isCompleted ? Colors.green : Colors.black54,
                   ),
                 ),
               ),
@@ -136,9 +134,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   setState(() => selectedDate = date);
                 }
               },
-              child: Text(
-                "Select Date: ${selectedDate.toLocal()}".split(' ')[0],
-              ),
+              child: Text("Select Date: ${selectedDate.toLocal()}".split(' ')[0]),
             ),
 
             const SizedBox(height: 20),
@@ -147,6 +143,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 widget.onStepChanged(
                   widget.bookingStep + 1,
                 ); // move to next step
+                widget.onStepChanged(widget.bookingStep + 1); // move to next step
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text("Booking Scheduled!")),
                 );

@@ -1,11 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:localhands_app/admin/admin.dart';
-import 'package:localhands_app/view/home_screen.dart';
 import 'package:localhands_app/view/splash_chaitrali.dart';
 import 'package:lottie/lottie.dart';
+import 'package:localhands_app/home/home_screen.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -377,6 +378,10 @@ class _AuthScreenState extends State<AuthScreen>
                               : true, // workers need approval
                           'createdAt': FieldValue.serverTimestamp(),
                         });
+                    await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                      email: email,
+                      password: password,
+                    );
                   } else {
                     await FirebaseAuth.instance.signInWithEmailAndPassword(
                       email: email,
@@ -407,6 +412,7 @@ class _AuthScreenState extends State<AuthScreen>
                     );
                   }
                 } on FirebaseAuthException catch (e) {
+                  log("login failed");
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(e.message ?? "Authentication failed"),
@@ -414,6 +420,22 @@ class _AuthScreenState extends State<AuthScreen>
                   );
                 }
               },
+            ),
+            const SizedBox(height: 10),
+            TextButton(
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const HomeScreen()),
+                );
+              },
+              child: const Text(
+                "Continue to Home (Temp)",
+                style: TextStyle(
+                  color: Colors.teal,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ],
         ),

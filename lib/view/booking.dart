@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'scheduleScreen.dart';
-import 'pick_date.dart'; // pickDate function
+import 'pick_date.dart'; 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+// pickDate function
 
 class BookingBottomSheet {
   static void show(
@@ -144,12 +147,36 @@ class BookingBottomSheet {
 
                   // Send request button
                   ElevatedButton(
-                    onPressed: bookingStep >= 1
-                        ? () {
-                            updateStep(2);
-                            Navigator.pop(context);
-                          }
-                        : null,
+  onPressed: bookingStep >= 1
+      ? () async {
+          try {
+            final user = FirebaseAuth.instance.currentUser;
+
+            await FirebaseFirestore.instance.collection('requests').add({
+              'userId': user?.uid ?? '',
+              'userEmail': user?.email ?? '',
+              'workerName': profile["name"],
+              'workerImage': profile["image"],
+              'category': category,
+              'status': 'pending',
+              'startDate': DateTime.now().toIso8601String(),
+              'timestamp': FieldValue.serverTimestamp(),
+            });
+
+            updateStep(2);
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Request Sent Successfully!")),
+            );
+            Navigator.pop(context);
+          } catch (e) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("Failed to send request: $e")),
+            );
+          }
+        }
+      : null,
+
                     style: ElevatedButton.styleFrom(
                         backgroundColor: bookingStep >= 1 ? Colors.green : Colors.grey,
                         padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 14),

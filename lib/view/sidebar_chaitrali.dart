@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:localhands_app/view/help_chaitrali.dart';
 import 'package:localhands_app/view/history_chaitrali.dart';
-import 'package:localhands_app/view/login.dart';
+import 'package:localhands_app/home/login.dart';
 import 'package:localhands_app/view/profile_chaitrali.dart';
 import 'package:localhands_app/view/settings_chaitrali.dart';
 import 'package:localhands_app/view/withdraw_chaitrali.dart';

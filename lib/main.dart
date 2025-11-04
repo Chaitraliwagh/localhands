@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:localhands_app/view/splash_screen.dart';
+import 'package:localhands_app/home/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 Future<void> main() async {
