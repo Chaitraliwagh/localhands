@@ -142,7 +142,7 @@ class _LocalHandsHomePageState extends State<LocalHandsHomePage> {
   }
 
   LinearGradient get mainGradient => LinearGradient(
-    colors: [hexToColor("#1D828E"), hexToColor("#1A237E")],
+    colors: [Color(0xFF1D828E), Color.fromARGB(255, 50, 189, 117)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
@@ -222,27 +222,25 @@ class _LocalHandsHomePageState extends State<LocalHandsHomePage> {
                         border: Border.all(
                           color: selected
                               ? Colors.transparent
-                              : hexToColor("#1D828E").withOpacity(0.14),
+                              : Color(0xFF1D828E).withOpacity(0.14),
                           width: 1,
                         ),
+
                         boxShadow: selected
                             ? [
                                 BoxShadow(
-                                  color: hexToColor(
-                                    "#1D828E",
-                                  ).withOpacity(0.25),
+                                  color: Color(0xFF1D828E).withOpacity(0.25),
                                   blurRadius: 8,
                                   offset: const Offset(0, 4),
                                 ),
                               ]
                             : null,
                       ),
+
                       child: Text(
                         _pageTitles[index],
                         style: TextStyle(
-                          color: selected
-                              ? Colors.white
-                              : hexToColor("#1A237E"),
+                          color: selected ? Colors.white : Color(0xFF1D828E),
                           fontWeight: selected
                               ? FontWeight.bold
                               : FontWeight.w600,
@@ -349,7 +347,11 @@ class DashboardPage extends StatelessWidget {
                   value: '12',
                   icon: Icons.people,
                   gradient: LinearGradient(
-                    colors: [hexToColor("#1D828E"), hexToColor("#1A237E")],
+                    colors: [
+                      Color(0xFF1D828E),
+                      Color.fromARGB(255, 50, 189, 117),
+                    ],
+
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -360,7 +362,10 @@ class DashboardPage extends StatelessWidget {
                   value: '6',
                   icon: Icons.handyman,
                   gradient: LinearGradient(
-                    colors: [hexToColor("#1D828E"), hexToColor("#1A237E")],
+                    colors: [
+                      Color(0xFF1D828E),
+                      Color.fromARGB(255, 50, 189, 117),
+                    ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -381,7 +386,10 @@ class DashboardPage extends StatelessWidget {
                     value: '3',
                     icon: Icons.inbox,
                     gradient: LinearGradient(
-                      colors: [hexToColor("#1D828E"), hexToColor("#1A237E")],
+                      colors: [
+                        Color(0xFF1D828E),
+                        Color.fromARGB(255, 50, 189, 117),
+                      ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -394,7 +402,10 @@ class DashboardPage extends StatelessWidget {
                   value: '1',
                   icon: Icons.event_available,
                   gradient: LinearGradient(
-                    colors: [hexToColor("#1D828E"), hexToColor("#1A237E")],
+                    colors: [
+                      Color(0xFF1D828E),
+                      Color.fromARGB(255, 50, 189, 117),
+                    ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -422,7 +433,7 @@ class DashboardPage extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: hexToColor("#1A237E"),
+                      color: Color(0xFF1D828E),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -924,7 +935,10 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
-                    colors: [hexToColor("#1D828E"), hexToColor("#1A237E")],
+                    colors: [
+                      Color(0xFF1D828E),
+                      Color.fromARGB(255, 50, 189, 117),
+                    ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -970,8 +984,8 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              hexToColor("#1D828E"),
-                              hexToColor("#1A237E"),
+                              Color(0xFF1D828E),
+                              Color.fromARGB(255, 50, 189, 117),
                             ],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
@@ -1017,7 +1031,10 @@ class SettingsPage extends StatelessWidget {
             leading: Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [hexToColor("#1D828E"), hexToColor("#1A237E")],
+                  colors: [
+                    Color(0xFF1D828E),
+                    Color.fromARGB(255, 50, 189, 117),
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -1071,9 +1088,9 @@ class _LHStatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Color iconColor = Colors.greenAccent;
-    if (icon == Icons.handyman) iconColor = Colors.orangeAccent;
-    if (icon == Icons.inbox) iconColor = Colors.purpleAccent;
-    if (icon == Icons.event_available) iconColor = Colors.blueAccent;
+    if (icon == Icons.handyman) iconColor = Color(0xFF1D828E);
+    if (icon == Icons.inbox) iconColor = Color(0xFF1D828E);
+    if (icon == Icons.event_available) iconColor = Color(0xFF1D828E);
 
     return Container(
       width: 210,
@@ -1086,7 +1103,7 @@ class _LHStatCard extends StatelessWidget {
         boxShadow: gradient != null
             ? [
                 BoxShadow(
-                  color: hexToColor("#1D828E").withOpacity(0.18),
+                  color: Color(0xFF1D828E).withOpacity(0.18),
                   blurRadius: 10,
                   offset: const Offset(0, 6),
                 ),

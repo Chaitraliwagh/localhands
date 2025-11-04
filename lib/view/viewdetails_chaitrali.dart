@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -5,25 +7,106 @@ import 'package:localhands_app/view/info_chaitrali.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-void sendOtpToCustomer(
+const String twilioAccountSid =
+    "AC88947f06e39dfcff722cb8da0bdd4873"; // your Account SID
+const String twilioAuthToken =
+    "2dbb482af5e26a93b2bb50d0c1308093"; // your Auth Token
+const String twilioVerifyServiceSid =
+    "VA05415f30aa2b6da332d47ab5589e084d"; // your Verify Service SID
+
+Future<bool> sendOtpToCustomer(
   String phoneNumber,
-  Function(String verificationId) onCodeSent,
+  Function() onCodeSent,
 ) async {
-  await FirebaseAuth.instance.verifyPhoneNumber(
-    phoneNumber: phoneNumber,
-    timeout: const Duration(seconds: 60),
-    verificationCompleted: (PhoneAuthCredential credential) {
-      // Auto verification on same device (optional)
-    },
-    verificationFailed: (FirebaseAuthException e) {
-      print("OTP sending failed: ${e.message}");
-    },
-    codeSent: (String verificationId, int? resendToken) {
-      onCodeSent(verificationId);
-    },
-    codeAutoRetrievalTimeout: (String verificationId) {},
+  try {
+    // 1) Guard: phone number present
+    if (phoneNumber == null || phoneNumber.trim().isEmpty) {
+      print("⚠️ sendOtpToCustomer: phoneNumber is null/empty");
+      return false;
+    }
+
+    // 2) Ensure E.164 format (basic)
+    if (!phoneNumber.startsWith('+')) {
+      phoneNumber = '+91${phoneNumber.replaceAll(RegExp(r'\D'), '')}';
+    }
+
+    print("📲 sendOtpToCustomer: sending to $phoneNumber");
+
+    final url = Uri.parse(
+      "https://verify.twilio.com/v2/Services/$twilioVerifyServiceSid/Verifications",
+    );
+
+    // 3) Make request with a timeout
+    final response = await http
+        .post(
+          url,
+          headers: {
+            'Authorization':
+                'Basic ${base64Encode(utf8.encode('$twilioAccountSid:$twilioAuthToken'))}',
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: {'To': phoneNumber, 'Channel': 'sms'},
+        )
+        .timeout(const Duration(seconds: 15));
+
+    print("📩 Twilio Response: ${response.statusCode} -> ${response.body}");
+
+    // 4) Accept 200 OR 201
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      try {
+        final body = jsonDecode(response.body);
+        if (body['status'] == 'pending' || body['status'] == 'sent') {
+          print("✅ Twilio: OTP request pending/sent");
+          onCodeSent();
+          return true;
+        } else {
+          print("⚠️ Twilio returned unexpected status: ${body['status']}");
+        }
+      } catch (e) {
+        // if body is not JSON, still treat as success when code is 200/201
+        print("ℹ️ Non-JSON response but status is ${response.statusCode}");
+        onCodeSent();
+        return true;
+      }
+    }
+
+    print("❌ Failed to send OTP: ${response.body}");
+    return false;
+  } on TimeoutException catch (te) {
+    print("⏱️ Timeout sending OTP: $te");
+    return false;
+  } catch (e) {
+    print("🔥 Exception in sendOtpToCustomer: $e");
+    return false;
+  }
+}
+
+Future<bool> verifyOtpFromCustomer(String phoneNumber, String otpCode) async {
+  final url = Uri.parse(
+    "https://verify.twilio.com/v2/Services/$twilioVerifyServiceSid/VerificationCheck",
   );
+
+  final response = await http.post(
+    url,
+    headers: {
+      'Authorization':
+          'Basic ${base64Encode(utf8.encode('$twilioAccountSid:$twilioAuthToken'))}',
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: {'To': phoneNumber, 'Code': otpCode},
+  );
+
+  final data = jsonDecode(response.body);
+  if (response.statusCode == 200 && data['status'] == 'approved') {
+    print("✅ OTP verified successfully");
+    return true;
+  } else {
+    print("❌ Invalid OTP: ${response.body}");
+    return false;
+  }
 }
 
 Widget gradientButton(String text, VoidCallback onTap) {
@@ -32,7 +115,7 @@ Widget gradientButton(String text, VoidCallback onTap) {
     height: 50,
     decoration: BoxDecoration(
       gradient: LinearGradient(
-        colors: [hexToColor("#1D828E"), hexToColor("#1A237E")],
+        colors: [Color(0xFF1D828E), Color.fromARGB(255, 50, 189, 117)],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
@@ -106,6 +189,14 @@ Widget _infoRow({
       ],
     ),
   );
+}
+
+Future<void> testTwilioFromApp() async {
+  print("🔧 testTwilioFromApp running...");
+  final ok = await sendOtpToCustomer('+917219619447', () {
+    print("callback: onCodeSent called from testTwilioFromApp");
+  });
+  print("testTwilioFromApp result: $ok");
 }
 
 void showJobDetailsBottomSheet(BuildContext context, Map<String, dynamic> job) {
@@ -401,8 +492,8 @@ void showJobDetailsBottomSheet(BuildContext context, Map<String, dynamic> job) {
                                     decoration: BoxDecoration(
                                       gradient: LinearGradient(
                                         colors: [
-                                          hexToColor("#1D828E"),
-                                          hexToColor("#1A237E"),
+                                          Color(0xFF1D828E),
+                                          Color.fromARGB(255, 50, 189, 117),
                                         ],
                                         begin: Alignment.topLeft,
                                         end: Alignment.bottomRight,
@@ -499,12 +590,12 @@ void showJobDetailsBottomSheet(BuildContext context, Map<String, dynamic> job) {
                             isAccepted
                                 ? () {}
                                 : () {
-                                  setState(() {
-                                    isAccepted = true;
-                                  });
-                                  job["status"] = "ongoing";
-                                  (job["onAcceptJob"] ?? () {})(job);
-                                },
+                                    setState(() {
+                                      isAccepted = true;
+                                    });
+                                    job["status"] = "ongoing";
+                                    (job["onAcceptJob"] ?? () {})();
+                                  },
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -552,18 +643,64 @@ void showJobDetailsBottomSheet(BuildContext context, Map<String, dynamic> job) {
                       const SizedBox(height: 10),
 
                       if (!otpRequested)
-                        gradientButton("Mark Work as Completed", () {
-                          setState(() {
-                            otpRequested = true;
-                          });
-                          sendOtpToCustomer(job["customerPhone"], (
-                            verificationId,
-                          ) {
-                            setState(() {
-                              job["verificationId"] = verificationId;
-                              otpRequested = true;
-                            });
-                          });
+                        gradientButton("Mark Work as Completed", () async {
+                          // quick guard
+                          final customerPhone =
+                              job["customerPhone"]?.toString() ?? '';
+                          print(
+                            "➡️ Mark Work tapped for phone: $customerPhone",
+                          );
+
+                          if (customerPhone.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Customer phone not available"),
+                              ),
+                            );
+                            return;
+                          }
+
+                          // show loading snackbar while waiting
+                          final snack = ScaffoldMessenger.of(context)
+                              .showSnackBar(
+                                const SnackBar(
+                                  content: Text("Sending OTP..."),
+                                  duration: Duration(seconds: 30),
+                                ),
+                              );
+
+                          final success = await sendOtpToCustomer(
+                            customerPhone,
+                            () {
+                              setState(() {
+                                otpRequested = true;
+                              });
+                            },
+                          );
+
+                          // hide (or replace) the previous snackbar
+                          snack.close();
+
+                          if (success) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  "OTP sent (check customer's phone)",
+                                ),
+                              ),
+                            );
+                            print("✅ sendOtpToCustomer returned true");
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  "Failed to send OTP. Check console logs.",
+                                ),
+                                backgroundColor: Colors.redAccent,
+                              ),
+                            );
+                            print("❌ sendOtpToCustomer returned false");
+                          }
                         }),
 
                       if (otpRequested) ...[
@@ -586,27 +723,22 @@ void showJobDetailsBottomSheet(BuildContext context, Map<String, dynamic> job) {
                         const SizedBox(height: 12),
                         gradientButton("Confirm Completion", () async {
                           final enteredOtp = otpController.text.trim();
-                          final credential = PhoneAuthProvider.credential(
-                            verificationId: job["verificationId"],
-                            smsCode: enteredOtp,
-                          );
 
-                          try {
-                            await FirebaseAuth.instance.signInWithCredential(
-                              credential,
-                            );
+                          bool verified = await verifyOtpFromCustomer(
+                            job["customerPhone"],
+                            enteredOtp,
+                          );
+                          if (verified) {
                             setState(() {
                               isCompleted = true;
                               job["status"] = "completed";
                             });
+                            (job["onCompleteJob"] ?? () {})();
 
-                            (job["onCompleteJob"] ?? () {})(job);
-                            (job["onNotify"] ?? () {})(
-                              "Job '${job["service"] ?? ""}' marked as completed!",
-                            );
+                            (job["onNotify"] ?? () {})();
 
                             Navigator.pop(context);
-                          } catch (e) {
+                          } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text("Invalid OTP. Please try again."),

@@ -111,7 +111,7 @@ class _HomeScreenState extends State<HomeScreen>
                         child: _buildServicesCarousel(),
                       ),
                       _buildDiscoverAllServices(),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 18),
                       _buildSpecialOfferCard(),
                       const HomewomenSpa(),
                       const SizedBox(height: 16),

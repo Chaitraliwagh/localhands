@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:localhands_app/view/info_chaitrali.dart';
+import 'package:localhands_app/view/not_chaitrali.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
 
@@ -91,27 +92,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final controller = TextEditingController(text: current);
     await showDialog(
       context: context,
-      builder:
-          (ctx) => AlertDialog(
-            title: Text("Edit $title"),
-            content: TextField(
-              controller: controller,
-              decoration: InputDecoration(hintText: title),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(ctx).pop(),
-                child: const Text("Cancel"),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  onSave(controller.text.trim());
-                  Navigator.of(ctx).pop();
-                },
-                child: const Text("Save"),
-              ),
-            ],
+      builder: (ctx) => AlertDialog(
+        title: Text("Edit $title"),
+        content: TextField(
+          controller: controller,
+          decoration: InputDecoration(hintText: title),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text("Cancel"),
           ),
+          ElevatedButton(
+            onPressed: () {
+              onSave(controller.text.trim());
+              Navigator.of(ctx).pop();
+            },
+            child: const Text("Save"),
+          ),
+        ],
+      ),
     );
   }
 
@@ -120,77 +120,73 @@ class _ProfileScreenState extends State<ProfileScreen> {
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder:
-          (ctx) => Padding(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(ctx).viewInsets.bottom,
-            ),
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    "Edit Services",
-                    style: GoogleFonts.urbanist(fontWeight: FontWeight.w700),
-                  ),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children:
-                        profile.services
-                            .map(
-                              (s) => Chip(
-                                label: Text(s),
-                                onDeleted: () {
-                                  setState(() {
-                                    profile.services.remove(s);
-                                  });
-                                  Navigator.of(ctx).pop();
-                                  _editServices();
-                                },
-                              ),
-                            )
-                            .toList(),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: controller,
-                          decoration: const InputDecoration(
-                            hintText: "Add service",
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      ElevatedButton(
-                        onPressed: () {
-                          final val = controller.text.trim();
-                          if (val.isNotEmpty) {
-                            setState(() {
-                              profile.services.add(val);
-                            });
-                            controller.clear();
-                            Navigator.of(ctx).pop();
-                            _editServices();
-                          }
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "Edit Services",
+                style: GoogleFonts.urbanist(fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: profile.services
+                    .map(
+                      (s) => Chip(
+                        label: Text(s),
+                        onDeleted: () {
+                          setState(() {
+                            profile.services.remove(s);
+                          });
+                          Navigator.of(ctx).pop();
+                          _editServices();
                         },
-                        child: const Text("Add"),
                       ),
-                    ],
+                    )
+                    .toList(),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: controller,
+                      decoration: const InputDecoration(
+                        hintText: "Add service",
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 12),
-                  TextButton(
-                    onPressed: () => Navigator.of(ctx).pop(),
-                    child: const Text("Done"),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: () {
+                      final val = controller.text.trim();
+                      if (val.isNotEmpty) {
+                        setState(() {
+                          profile.services.add(val);
+                        });
+                        controller.clear();
+                        Navigator.of(ctx).pop();
+                        _editServices();
+                      }
+                    },
+                    child: const Text("Add"),
                   ),
                 ],
               ),
-            ),
+              const SizedBox(height: 12),
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: const Text("Done"),
+              ),
+            ],
           ),
+        ),
+      ),
     );
   }
 
@@ -200,7 +196,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       padding: const EdgeInsets.only(top: 40, bottom: 30),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFF1D828E), Color(0xFF1A237E)],
+          colors: [Color(0xFF1D828E), Color.fromARGB(255, 50, 189, 117)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -227,10 +223,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       backgroundColor: Colors.white,
                       child: CircleAvatar(
                         radius: 52,
-                        backgroundImage:
-                            profileImage.startsWith('assets/')
-                                ? AssetImage(profileImage) as ImageProvider
-                                : FileImage(File(profileImage)),
+                        backgroundImage: profileImage.startsWith('assets/')
+                            ? AssetImage(profileImage) as ImageProvider
+                            : FileImage(File(profileImage)),
                       ),
                     ),
                   ),
@@ -293,83 +288,82 @@ class _ProfileScreenState extends State<ProfileScreen> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder:
-          (ctx) => Container(
-            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-            margin: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(25),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black26,
-                  blurRadius: 15,
-                  offset: const Offset(0, 5),
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+        margin: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(25),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 15,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Drag handle
+            Container(
+              width: 50,
+              height: 5,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2.5),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              "Update Profile Photo",
+              style: GoogleFonts.poppins(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Icons row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildIconOption(
+                  icon: Icons.photo_library,
+                  label: "Upload",
+                  color: Colors.blue,
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _pickProfileImage();
+                  },
+                ),
+                _buildIconOption(
+                  icon: Icons.camera_alt,
+                  label: "Camera",
+                  color: Colors.green,
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _pickProfileImageFromCamera();
+                  },
+                ),
+                _buildIconOption(
+                  icon: Icons.delete_forever,
+                  label: "Remove",
+                  color: Colors.red,
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    setState(() {
+                      profileImage = 'assets/images/explore.jpeg';
+                    });
+                  },
                 ),
               ],
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Drag handle
-                Container(
-                  width: 50,
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2.5),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  "Update Profile Photo",
-                  style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 20),
+            const SizedBox(height: 20),
 
-                // Icons row
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildIconOption(
-                      icon: Icons.photo_library,
-                      label: "Upload",
-                      color: Colors.blue,
-                      onTap: () {
-                        Navigator.pop(ctx);
-                        _pickProfileImage();
-                      },
-                    ),
-                    _buildIconOption(
-                      icon: Icons.camera_alt,
-                      label: "Camera",
-                      color: Colors.green,
-                      onTap: () {
-                        Navigator.pop(ctx);
-                        _pickProfileImageFromCamera();
-                      },
-                    ),
-                    _buildIconOption(
-                      icon: Icons.delete_forever,
-                      label: "Remove",
-                      color: Colors.red,
-                      onTap: () {
-                        Navigator.pop(ctx);
-                        setState(() {
-                          profileImage = 'assets/images/explore.jpeg';
-                        });
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-
-                // Cancel button
-                /*GestureDetector(
+            // Cancel button
+            /*GestureDetector(
                   onTap: () => Navigator.pop(ctx),
                   child: Container(
                     width: double.infinity,
@@ -389,9 +383,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                 ),*/
-              ],
-            ),
-          ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -460,103 +454,111 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     await showDialog(
       context: context,
-      builder:
-          (ctx) => AlertDialog(
-            backgroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            title: Text(
-              "Edit Profile Details",
-              style: GoogleFonts.poppins(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-                color: hexToColor("#1A237E"),
-              ),
-            ),
-            content: SingleChildScrollView(
-              child: Column(
-                children: [
-                  _buildRoundedTextField(phoneController, "Phone"),
-                  _buildRoundedTextField(emailController, "Email"),
-                  _buildRoundedTextField(locationController, "Location"),
-                  _buildRoundedTextField(rateController, "Hourly Rate"),
-                  _buildRoundedTextField(
-                    availabilityController,
-                    "Availability",
-                  ),
-                  const SizedBox(height: 10),
-                  Divider(thickness: 1, color: Colors.grey[300]),
-                  const SizedBox(height: 10),
-                  _buildRoundedTextField(upiController, "UPI ID"),
-                  //_buildRoundedTextField(qrController, "QR Info / Code"),
-                  _buildRoundedTextField(notesController, "Payment Notes"),
-                ],
-              ),
-            ),
-            actions: [
-              ElevatedButton(
-                onPressed: () => Navigator.pop(ctx),
-
-                child: Text(
-                  "Cancel",
-                  style: TextStyle(
-                    color: hexToColor("#1A237E"), // text color
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    profile.upiId = upiController.text.trim();
-                    //profile.upiQr = qrController.text.trim();
-                    profile.paymentNotes = notesController.text.trim();
-                    profile.phone = phoneController.text.trim();
-                    profile.email = emailController.text.trim();
-                    profile.location = locationController.text.trim();
-                    profile.hourlyRate = rateController.text.trim();
-                    profile.availability = availabilityController.text.trim();
-                  });
-                  Navigator.pop(ctx);
-                },
-                style: ElevatedButton.styleFrom(
-                  padding:
-                      EdgeInsets
-                          .zero, // remove default padding to match container height
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  elevation: 4, // similar shadow
-                  shadowColor: Colors.black26,
-                  backgroundColor: Colors.transparent, // required for gradient
-                ),
-                child: Ink(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [hexToColor("#1D828E"), hexToColor("#1A237E")],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Container(
-                    width: 90,
-                    height: 40, // match Accept button height
-                    alignment: Alignment.center,
-                    child: Text(
-                      "Save",
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(
+          "Edit Profile Details",
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+            color: hexToColor("#1A237E"),
+          ),
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            children: [
+              _buildRoundedTextField(phoneController, "Phone"),
+              _buildRoundedTextField(emailController, "Email"),
+              _buildRoundedTextField(locationController, "Location"),
+              _buildRoundedTextField(rateController, "Hourly Rate"),
+              _buildRoundedTextField(availabilityController, "Availability"),
+              const SizedBox(height: 10),
+              Divider(thickness: 1, color: Colors.grey[300]),
+              const SizedBox(height: 10),
+              _buildRoundedTextField(upiController, "UPI ID"),
+              //_buildRoundedTextField(qrController, "QR Info / Code"),
+              _buildRoundedTextField(notesController, "Payment Notes"),
             ],
           ),
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx),
+
+            child: Text(
+              "Cancel",
+              style: TextStyle(
+                color: hexToColor("#1A237E"), // text color
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              setState(() {
+                profile.upiId = upiController.text.trim();
+                //profile.upiQr = qrController.text.trim();
+                profile.paymentNotes = notesController.text.trim();
+                profile.phone = phoneController.text.trim();
+                profile.email = emailController.text.trim();
+                profile.location = locationController.text.trim();
+                profile.hourlyRate = rateController.text.trim();
+                profile.availability = availabilityController.text.trim();
+              });
+              Navigator.pop(ctx);
+              // Profile Added Successfully
+              await NotificationService.addNotification(
+                NotificationItem(
+                  title: "Profile Added Successfully",
+                  desc:
+                      "Your profile has been created and saved in the system.",
+                  time: "Just now",
+                  icon: "check_circle",
+                  typeColor: "0xFF4CAF50", // Green
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              padding: EdgeInsets
+                  .zero, // remove default padding to match container height
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              elevation: 4, // similar shadow
+              shadowColor: Colors.black26,
+              backgroundColor: Colors.transparent, // required for gradient
+            ),
+            child: Ink(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Color(0xFF1D828E),
+                    Color.fromARGB(255, 50, 189, 117),
+                  ],
+
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Container(
+                width: 90,
+                height: 40, // match Accept button height
+                alignment: Alignment.center,
+                child: Text(
+                  "Save",
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -690,28 +692,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children:
-                skills
-                    .map(
-                      (skill) => Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 8,
-                          horizontal: 14,
-                        ),
-                        decoration: BoxDecoration(
-                          color: hexToColor("#1A237E").withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          skill,
-                          style: GoogleFonts.urbanist(
-                            color: hexToColor("#1A237E"),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+            children: skills
+                .map(
+                  (skill) => Container(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 8,
+                      horizontal: 14,
+                    ),
+                    decoration: BoxDecoration(
+                      color: hexToColor("#1A237E").withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      skill,
+                      style: GoogleFonts.urbanist(
+                        color: hexToColor("#1A237E"),
+                        fontWeight: FontWeight.w600,
                       ),
-                    )
-                    .toList(),
+                    ),
+                  ),
+                )
+                .toList(),
           ),
         ],
       ),
@@ -725,7 +726,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF1D828E), Color(0xFF1A237E)],
+          colors: [Color(0xFF1D828E), Color.fromARGB(255, 50, 189, 117)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -806,10 +807,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildDocRow(String name, String status) {
-    Color color =
-        status == "Verified"
-            ? Colors.green
-            : (status == "Pending" ? Colors.orange : Colors.red);
+    Color color = status == "Verified"
+        ? Colors.green
+        : (status == "Pending" ? Colors.orange : Colors.red);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -969,203 +969,197 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     await showDialog(
       context: context,
-      builder:
-          (ctx) => StatefulBuilder(
-            builder:
-                (ctx, setDialogState) => AlertDialog(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(24), // rounder dialog
-                  ),
-                  backgroundColor: Colors.white,
-                  title: Center(
-                    child: Text(
-                      "Edit Payment Info",
-                      style: GoogleFonts.urbanist(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 20,
-                        color: hexToColor("#1A237E"),
-                      ),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24), // rounder dialog
+          ),
+          backgroundColor: Colors.white,
+          title: Center(
+            child: Text(
+              "Edit Payment Info",
+              style: GoogleFonts.urbanist(
+                fontWeight: FontWeight.w700,
+                fontSize: 20,
+                color: hexToColor("#1A237E"),
+              ),
+            ),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                // UPI ID field
+                TextField(
+                  controller: upiController,
+                  decoration: InputDecoration(
+                    labelText: "UPI ID",
+                    labelStyle: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey.shade100,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 18,
+                      vertical: 16,
                     ),
                   ),
-                  content: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        // UPI ID field
-                        TextField(
-                          controller: upiController,
-                          decoration: InputDecoration(
-                            labelText: "UPI ID",
-                            labelStyle: TextStyle(
-                              color: Colors.grey.shade600,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            filled: true,
-                            fillColor: Colors.grey.shade100,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide.none,
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 18,
-                              vertical: 16,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
+                ),
+                const SizedBox(height: 20),
 
-                        // QR Image upload
-                        GestureDetector(
-                          onTap: () async {
-                            final picked = await ImagePicker().pickImage(
-                              source: ImageSource.gallery,
-                            );
-                            if (picked != null) {
-                              setDialogState(() {
-                                qrImage = File(picked.path);
-                              });
-                            }
-                          },
-                          child: Container(
-                            height: 150,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: Colors.grey.shade300),
-                              color: Colors.grey.shade50,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey.withOpacity(0.1),
-                                  blurRadius: 6,
-                                  offset: const Offset(0, 3),
-                                ),
-                              ],
-                            ),
-                            child:
-                                qrImage != null
-                                    ? ClipRRect(
-                                      borderRadius: BorderRadius.circular(16),
-                                      child: Image.file(
-                                        qrImage!,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    )
-                                    : profile.upiQr.isNotEmpty
-                                    ? ClipRRect(
-                                      borderRadius: BorderRadius.circular(16),
-                                      child: Image.file(
-                                        File(profile.upiQr),
-                                        fit: BoxFit.cover,
-                                      ),
-                                    )
-                                    : Center(
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(
-                                            Icons.add_a_photo,
-                                            size: 32,
-                                            color: Colors.grey.shade400,
-                                          ),
-                                          const SizedBox(height: 6),
-                                          Text(
-                                            "Upload QR Image",
-                                            style: TextStyle(
-                                              color: Colors.grey.shade500,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-
-                        // Payment notes
-                        TextField(
-                          controller: notesController,
-                          decoration: InputDecoration(
-                            labelText: "Payment Notes",
-                            labelStyle: TextStyle(
-                              color: Colors.grey.shade600,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            filled: true,
-                            fillColor: Colors.grey.shade100,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide.none,
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 18,
-                              vertical: 16,
-                            ),
-                          ),
-                          maxLines: 3,
+                // QR Image upload
+                GestureDetector(
+                  onTap: () async {
+                    final picked = await ImagePicker().pickImage(
+                      source: ImageSource.gallery,
+                    );
+                    if (picked != null) {
+                      setDialogState(() {
+                        qrImage = File(picked.path);
+                      });
+                    }
+                  },
+                  child: Container(
+                    height: 150,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.grey.shade300),
+                      color: Colors.grey.shade50,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.1),
+                          blurRadius: 6,
+                          offset: const Offset(0, 3),
                         ),
                       ],
                     ),
-                  ),
-                  actionsPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(ctx),
-                      child: Text(
-                        "Cancel",
-                        style: TextStyle(color: hexToColor("#1A237E")),
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          profile.upiId = upiController.text.trim();
-                          profile.paymentNotes = notesController.text.trim();
-                          if (qrImage != null) profile.upiQr = qrImage!.path;
-                        });
-                        Navigator.pop(ctx);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        elevation: 4,
-                        shadowColor: Colors.black26,
-                        backgroundColor: Colors.transparent,
-                      ),
-                      child: Ink(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              hexToColor("#1D828E"),
-                              hexToColor("#1A237E"),
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Container(
-                          width: 80,
-                          height: 40,
-                          alignment: Alignment.center,
-                          child: Text(
-                            "Save",
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w500,
+                    child: qrImage != null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: Image.file(qrImage!, fit: BoxFit.cover),
+                          )
+                        : profile.upiQr.isNotEmpty
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: Image.file(
+                              File(profile.upiQr),
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                        : Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.add_a_photo,
+                                  size: 32,
+                                  color: Colors.grey.shade400,
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  "Upload QR Image",
+                                  style: TextStyle(
+                                    color: Colors.grey.shade500,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
+                const SizedBox(height: 20),
+
+                // Payment notes
+                TextField(
+                  controller: notesController,
+                  decoration: InputDecoration(
+                    labelText: "Payment Notes",
+                    labelStyle: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey.shade100,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 18,
+                      vertical: 16,
+                    ),
+                  ),
+                  maxLines: 3,
+                ),
+              ],
+            ),
           ),
+          actionsPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 12,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(
+                "Cancel",
+                style: TextStyle(color: hexToColor("#1A237E")),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  profile.upiId = upiController.text.trim();
+                  profile.paymentNotes = notesController.text.trim();
+                  if (qrImage != null) profile.upiQr = qrImage!.path;
+                });
+                Navigator.pop(ctx);
+              },
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.zero,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                elevation: 4,
+                shadowColor: Colors.black26,
+                backgroundColor: Colors.transparent,
+              ),
+              child: Ink(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0xFF1D828E),
+                      Color.fromARGB(255, 50, 189, 117),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Container(
+                  width: 80,
+                  height: 40,
+                  alignment: Alignment.center,
+                  child: Text(
+                    "Save",
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -1274,24 +1268,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final controller = TextEditingController();
     final result = await showDialog<String>(
       context: context,
-      builder:
-          (ctx) => AlertDialog(
-            title: const Text("Enter Document ID / Code"),
-            content: TextField(
-              controller: controller,
-              decoration: const InputDecoration(hintText: "Enter scanned code"),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx),
-                child: const Text("Cancel"),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(ctx, controller.text.trim()),
-                child: const Text("Save"),
-              ),
-            ],
+      builder: (ctx) => AlertDialog(
+        title: const Text("Enter Document ID / Code"),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(hintText: "Enter scanned code"),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text("Cancel"),
           ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, controller.text.trim()),
+            child: const Text("Save"),
+          ),
+        ],
+      ),
     );
 
     if (result != null && result.isNotEmpty) {
@@ -1309,27 +1302,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final controller = TextEditingController(text: profile.upiQr);
     final result = await showDialog<String?>(
       context: context,
-      builder:
-          (ctx) => AlertDialog(
-            title: const Text("Enter QR info / code"),
-            content: TextField(
-              controller: controller,
-              decoration: const InputDecoration(
-                hintText: "Paste QR text / URL / code",
-              ),
-              maxLines: 3,
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, null),
-                child: const Text("Cancel"),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(ctx, controller.text.trim()),
-                child: const Text("Save"),
-              ),
-            ],
+      builder: (ctx) => AlertDialog(
+        title: const Text("Enter QR info / code"),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            hintText: "Paste QR text / URL / code",
           ),
+          maxLines: 3,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, null),
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, controller.text.trim()),
+            child: const Text("Save"),
+          ),
+        ],
+      ),
     );
 
     if (result != null) {
@@ -1446,27 +1438,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<String?> _promptChoiceForDocStatus(String current) async {
     return showModalBottomSheet<String>(
       context: context,
-      builder:
-          (ctx) => SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ListTile(
-                  title: const Text("Mark Verified"),
-                  onTap: () => Navigator.of(ctx).pop("Verified"),
-                ),
-                ListTile(
-                  title: const Text("Mark Pending"),
-                  onTap: () => Navigator.of(ctx).pop("Pending"),
-                ),
-                ListTile(
-                  title: const Text("Remove / Not Uploaded"),
-                  onTap: () => Navigator.of(ctx).pop("Not Uploaded"),
-                ),
-                const SizedBox(height: 8),
-              ],
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: const Text("Mark Verified"),
+              onTap: () => Navigator.of(ctx).pop("Verified"),
             ),
-          ),
+            ListTile(
+              title: const Text("Mark Pending"),
+              onTap: () => Navigator.of(ctx).pop("Pending"),
+            ),
+            ListTile(
+              title: const Text("Remove / Not Uploaded"),
+              onTap: () => Navigator.of(ctx).pop("Not Uploaded"),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
     );
   }
 }

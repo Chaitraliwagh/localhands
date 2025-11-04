@@ -315,7 +315,7 @@ class _PartnerDashboardState extends State<PartnerDashboard>
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [hexToColor("#1D828E"), hexToColor("#1A237E")],
+              colors: [Color(0xFF1D828E), Color.fromARGB(255, 50, 189, 117)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -810,8 +810,8 @@ class _PartnerDashboardState extends State<PartnerDashboard>
           borderRadius: BorderRadius.circular(20),
           gradient: LinearGradient(
             colors: [
-              hexToColor("#1D828E").withOpacity(0.9),
-              hexToColor("#1A237E").withOpacity(0.7),
+              Color(0xFF1D828E).withOpacity(0.9),
+              Color.fromARGB(255, 50, 189, 117).withOpacity(0.7),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -993,7 +993,10 @@ class _PartnerDashboardState extends State<PartnerDashboard>
               height: 40,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [hexToColor("#1D828E"), hexToColor("#1A237E")],
+                  colors: [
+                    Color(0xFF1D828E),
+                    Color.fromARGB(255, 50, 189, 117),
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -1030,7 +1033,7 @@ class _PartnerDashboardState extends State<PartnerDashboard>
                   },
                   child: Center(
                     child: Text(
-                      'Accept',
+                      'Open',
                       style: GoogleFonts.poppins(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,

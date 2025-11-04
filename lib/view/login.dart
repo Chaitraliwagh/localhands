@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -93,7 +94,10 @@ class _AuthScreenState extends State<AuthScreen>
                   // Title
                   ShaderMask(
                     shaderCallback: (bounds) => LinearGradient(
-                      colors: [hexToColor("#1D828E"), hexToColor("#1A237E")],
+                      colors: [
+                        Color(0xFF1D828E),
+                        Color.fromARGB(255, 50, 189, 117),
+                      ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ).createShader(bounds),
@@ -356,10 +360,23 @@ class _AuthScreenState extends State<AuthScreen>
                     return;
                   }
                   if (isSignUp) {
-                    await FirebaseAuth.instance.createUserWithEmailAndPassword(
-                      email: email,
-                      password: password,
-                    );
+                    final cred = await FirebaseAuth.instance
+                        .createUserWithEmailAndPassword(
+                          email: email,
+                          password: password,
+                        );
+
+                    await FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(cred.user!.uid)
+                        .set({
+                          'email': email,
+                          'type': type, // Admin, Worker, or User
+                          'isVerified': type == 'Worker'
+                              ? false
+                              : true, // workers need approval
+                          'createdAt': FieldValue.serverTimestamp(),
+                        });
                   } else {
                     await FirebaseAuth.instance.signInWithEmailAndPassword(
                       email: email,
@@ -420,7 +437,7 @@ class _AuthScreenState extends State<AuthScreen>
       child: Ink(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [hexToColor("#1D828E"), hexToColor("#1A237E")],
+            colors: [Color(0xFF1D828E), Color.fromARGB(255, 50, 189, 117)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -93,6 +94,21 @@ class _DocumentationScreenState extends State<DocumentationScreen>
             });
           }
         });
+  }
+
+  Future<void> _saveFileToFirestore(String field, String filePath) async {
+    try {
+      final fileBytes = await File(filePath).readAsBytes();
+      final base64String = base64Encode(fileBytes);
+
+      await FirebaseFirestore.instance.collection('users').doc(userId).set({
+        'documents': {field: base64String},
+      }, SetOptions(merge: true));
+
+      debugPrint('✅ Saved $field to Firestore.');
+    } catch (e) {
+      debugPrint('❌ Error saving file: $e');
+    }
   }
 
   Future<void> _requestVerification() async {
@@ -233,8 +249,8 @@ class _DocumentationScreenState extends State<DocumentationScreen>
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
                                       colors: [
-                                        hexToColor("#1D828E"),
-                                        hexToColor("#1A237E"),
+                                        Color(0xFF1D828E),
+                                        Color.fromARGB(255, 50, 189, 117),
                                       ],
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
@@ -296,8 +312,8 @@ class _DocumentationScreenState extends State<DocumentationScreen>
                                         decoration: BoxDecoration(
                                           gradient: LinearGradient(
                                             colors: [
-                                              hexToColor("#1D828E"),
-                                              hexToColor("#1A237E"),
+                                              Color(0xFF1D828E),
+                                              Color.fromARGB(255, 50, 189, 117),
                                             ],
                                           ),
                                           borderRadius: BorderRadius.circular(
@@ -346,7 +362,7 @@ class _DocumentationScreenState extends State<DocumentationScreen>
       decoration: BoxDecoration(
         gradient: file != null
             ? LinearGradient(
-                colors: [hexToColor("#1D828E"), hexToColor("#1A237E")],
+                colors: [Color(0xFF1D828E), Color.fromARGB(255, 50, 189, 117)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               )
@@ -364,8 +380,8 @@ class _DocumentationScreenState extends State<DocumentationScreen>
                   gradient: file != null
                       ? LinearGradient(
                           colors: [
-                            hexToColor("#1D828E"),
-                            hexToColor("#1A237E"),
+                            Color(0xFF1D828E),
+                            Color.fromARGB(255, 50, 189, 117),
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -375,7 +391,7 @@ class _DocumentationScreenState extends State<DocumentationScreen>
                 padding: const EdgeInsets.all(8),
                 child: Icon(
                   icon,
-                  color: file != null ? Colors.white : hexToColor("#1D828E"),
+                  color: file != null ? Colors.white : Color(0xFF1D828E),
                   size: 26,
                 ),
               ),
@@ -474,7 +490,10 @@ class _DocumentationScreenState extends State<DocumentationScreen>
                   child: Ink(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [hexToColor("#1D828E"), hexToColor("#1A237E")],
+                        colors: [
+                          Color(0xFF1D828E),
+                          Color.fromARGB(255, 50, 189, 117),
+                        ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -508,7 +527,7 @@ class _DocumentationScreenState extends State<DocumentationScreen>
                     "Camera",
                     style: GoogleFonts.poppins(
                       fontSize: 14,
-                      color: hexToColor("#1A237E"),
+                      color: Color(0xFF1D828E),
                     ),
                   ),
                 ),
@@ -532,6 +551,8 @@ class _DocumentationScreenState extends State<DocumentationScreen>
           if (title.contains("Certificate")) certificateFile = filePath;
           if (title.contains("Profile")) profilePhotoFile = filePath;
         });
+        await _saveFileToFirestore(title, filePath);
+
         _checkAllUploaded();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Selected: ${result.files.single.name}")),
@@ -554,6 +575,7 @@ class _DocumentationScreenState extends State<DocumentationScreen>
           if (title.contains("Certificate")) certificateFile = image.path;
           if (title.contains("Profile")) profilePhotoFile = image.path;
         });
+        await _saveFileToFirestore(title, image.path);
         _checkAllUploaded();
       }
     } catch (e) {

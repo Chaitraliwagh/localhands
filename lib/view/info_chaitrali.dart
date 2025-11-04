@@ -25,6 +25,8 @@ class _BasicInfoScreenState extends State<BasicInfoScreen>
 
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
+  bool _isLoading = true; // 🔹 add this flag
+  bool _isVerified = false;
 
   late AnimationController _fadeController;
 
@@ -38,48 +40,24 @@ class _BasicInfoScreenState extends State<BasicInfoScreen>
   ];
 
   @override
-  @override
   void initState() {
     super.initState();
+    _setupAnimations();
+    _checkVerificationStatus();
+  }
 
-    // ✅ Check if user is verified
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      FirebaseFirestore.instance.collection('users').doc(user.uid).get().then((
-        doc,
-      ) {
-        if (doc.exists && doc['isVerified'] == true) {
-          // User is already verified — skip info and doc screens
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("✅ You’re already verified!")),
-            );
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (_) => const PartnerDashboard()),
-            );
-          });
-        }
-      });
-    }
-
-    // Initialize button gradient
+  void _setupAnimations() {
     _buttonGradient = LinearGradient(
-      colors: [
-        hexToColor("#1D828E"), // teal
-        hexToColor("#1A237E"), // dark blue
-      ],
+      colors: [Color(0xFF1D828E), Color.fromARGB(255, 50, 189, 117)],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     );
 
-    // Background floating animation (keeps repeating)
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 6),
     )..repeat(reverse: true);
 
-    // Fade animation (runs once when screen opens)
     _fadeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1500),
@@ -90,7 +68,59 @@ class _BasicInfoScreenState extends State<BasicInfoScreen>
       curve: Curves.easeIn,
     );
 
-    _fadeController.forward(); // Only fade in once
+    _fadeController.forward();
+  }
+
+  Future<void> _checkVerificationStatus() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      setState(() => _isLoading = false);
+      return;
+    }
+
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      if (doc.exists && doc['isVerified'] == true) {
+        // 🔹 Smooth delay for visual transition
+        await Future.delayed(const Duration(milliseconds: 800));
+
+        if (mounted) {
+          setState(() {
+            _isVerified = true;
+          });
+
+          // 🔹 Fade animation + transition
+          await _fadeController.reverse();
+
+          if (mounted) {
+            Navigator.pushReplacement(
+              context,
+              PageRouteBuilder(
+                pageBuilder: (_, __, ___) => const PartnerDashboard(),
+                transitionsBuilder:
+                    (context, animation, secondaryAnimation, child) {
+                      final fade = CurvedAnimation(
+                        parent: animation,
+                        curve: Curves.easeInOut,
+                      );
+                      return FadeTransition(opacity: fade, child: child);
+                    },
+                transitionDuration: const Duration(milliseconds: 600),
+              ),
+            );
+          }
+        }
+      } else {
+        setState(() => _isLoading = false);
+      }
+    } catch (e) {
+      debugPrint("Error checking verification: $e");
+      setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -116,6 +146,33 @@ class _BasicInfoScreenState extends State<BasicInfoScreen>
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      // 🔹 Professional gradient loader screen
+      return Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(
+                strokeWidth: 4,
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1D828E)),
+              ),
+
+              const SizedBox(height: 20),
+              Text(
+                "Checking verification...",
+                style: GoogleFonts.poppins(
+                  color: Colors.black54,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     return Scaffold(
       body: Stack(
         children: [
@@ -180,7 +237,7 @@ class _BasicInfoScreenState extends State<BasicInfoScreen>
                         children: [
                           CircleAvatar(
                             radius: 10,
-                            backgroundColor: hexToColor("#1A237E"),
+                            backgroundColor: Color(0xFF1D828E),
                             child: const Text(
                               "1",
                               style: TextStyle(
@@ -189,6 +246,7 @@ class _BasicInfoScreenState extends State<BasicInfoScreen>
                               ),
                             ),
                           ),
+
                           const SizedBox(width: 8),
                           Text(
                             "Basic Info",
@@ -208,8 +266,8 @@ class _BasicInfoScreenState extends State<BasicInfoScreen>
                           foreground: Paint()
                             ..shader = LinearGradient(
                               colors: [
-                                hexToColor("#1D828E"),
-                                hexToColor("#1A237E"),
+                                Color(0xFF1D828E),
+                                Color.fromARGB(255, 50, 189, 117),
                               ],
                             ).createShader(const Rect.fromLTWH(0, 0, 200, 70)),
                           shadows: [
@@ -243,14 +301,15 @@ class _BasicInfoScreenState extends State<BasicInfoScreen>
                                   FloatingLabelBehavior.always,
                               prefixIcon: CircleAvatar(
                                 radius: 14,
-                                backgroundColor: hexToColor(
-                                  "#1A237E",
+                                backgroundColor: Color(
+                                  0xFF1D828E,
                                 ).withOpacity(0.15),
                                 child: Icon(
                                   Icons.person,
-                                  color: hexToColor("#1A237E"),
+                                  color: Color(0xFF1D828E),
                                 ),
                               ),
+
                               border: InputBorder.none,
                             ),
                             validator: (value) => value!.isEmpty
@@ -272,12 +331,12 @@ class _BasicInfoScreenState extends State<BasicInfoScreen>
                                   FloatingLabelBehavior.always,
                               prefixIcon: CircleAvatar(
                                 radius: 14,
-                                backgroundColor: hexToColor(
-                                  "#1D828E",
+                                backgroundColor: Color(
+                                  0xFF1D828E,
                                 ).withOpacity(0.15),
                                 child: Icon(
                                   Icons.work,
-                                  color: hexToColor("#1A237E"),
+                                  color: Color(0xFF1D828E),
                                 ),
                               ),
                               border: InputBorder.none,
@@ -290,7 +349,7 @@ class _BasicInfoScreenState extends State<BasicInfoScreen>
                                     Icon(
                                       Icons.arrow_right,
                                       size: 18,
-                                      color: hexToColor("#1A237E"),
+                                      color: Color(0xFF1D828E),
                                     ),
                                     const SizedBox(width: 6),
                                     Text(field),
@@ -322,12 +381,12 @@ class _BasicInfoScreenState extends State<BasicInfoScreen>
                                   FloatingLabelBehavior.always,
                               prefixIcon: CircleAvatar(
                                 radius: 14,
-                                backgroundColor: hexToColor(
-                                  "#1D828E",
+                                backgroundColor: Color(
+                                  0xFF1D828E,
                                 ).withOpacity(0.15),
                                 child: Icon(
                                   Icons.home,
-                                  color: hexToColor("#1A237E"),
+                                  color: Color(0xFF1D828E),
                                 ),
                               ),
                               border: InputBorder.none,
@@ -364,8 +423,22 @@ class _BasicInfoScreenState extends State<BasicInfoScreen>
                                 borderRadius: BorderRadius.circular(16),
                                 splashColor: Colors.white.withOpacity(0.3),
                                 highlightColor: Colors.white.withOpacity(0.1),
-                                onTap: () {
+                                onTap: () async {
                                   if (_formKey.currentState!.validate()) {
+                                    final user =
+                                        FirebaseAuth.instance.currentUser;
+                                    if (user != null) {
+                                      await FirebaseFirestore.instance
+                                          .collection('users')
+                                          .doc(user.uid)
+                                          .update({
+                                            'name': _nameController.text.trim(),
+                                            'address': _addressController.text
+                                                .trim(),
+                                            'workField': _selectedWorkField,
+                                          });
+                                    }
+
                                     Navigator.pushReplacement(
                                       context,
                                       MaterialPageRoute(
@@ -375,6 +448,7 @@ class _BasicInfoScreenState extends State<BasicInfoScreen>
                                     );
                                   }
                                 },
+
                                 child: Center(
                                   child: Text(
                                     "Continue",

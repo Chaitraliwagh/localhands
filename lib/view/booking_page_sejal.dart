@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:localhands_app/view/chatscreen.dart';
 
 class BookingPage extends StatefulWidget {
   const BookingPage({Key? key}) : super(key: key);
@@ -30,7 +31,7 @@ class _BookingPageState extends State<BookingPage>
       'datetime': 'Today • 7:10 PM',
       'address': 'Jalgaon',
       'image': 'assets/plum2.jpeg',
-      'status': 'Request sent',
+      'status': 'On the Way',
     },
   ];
 
@@ -250,7 +251,7 @@ class _BookingPageState extends State<BookingPage>
           color: Colors.transparent,
           child: InkWell(
             onTap: () {
-              // open booking details - TODO connect real action
+              // open booking details
             },
             child: Padding(
               padding: const EdgeInsets.all(12.0),
@@ -320,9 +321,37 @@ class _BookingPageState extends State<BookingPage>
                             ),
                           ],
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 10),
 
-                        // Status + actions
+                        // 🟢 New row for call & message icons
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.phone, color: primaryTeal),
+                              onPressed: () {
+                                // TODO: call worker
+                              },
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.message, color: accentGreen),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ChatScreen(
+                                      currentUserId: "user_123", // for user
+                                      chatId:
+                                          "user_123_worker_456", // shared room
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+
+                        // Track / Cancel buttons
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -349,23 +378,18 @@ class _BookingPageState extends State<BookingPage>
                                 ),
                               ),
                             ),
-
                             const SizedBox(width: 8),
 
                             // Action buttons
                             Row(
                               children: [
                                 TextButton(
-                                  onPressed: () {
-                                    // track or details
-                                  },
+                                  onPressed: () {},
                                   child: const Text('Track'),
                                 ),
                                 const SizedBox(width: 4),
                                 TextButton(
-                                  onPressed: () {
-                                    // cancel (if allowed)
-                                  },
+                                  onPressed: () {},
                                   child: const Text('Cancel'),
                                 ),
                               ],

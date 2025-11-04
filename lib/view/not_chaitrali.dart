@@ -1,37 +1,102 @@
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:animations/animations.dart';
 
-class NotificationsScreen extends StatelessWidget {
+class NotificationItem {
+  final String title;
+  final String desc;
+  final String time;
+  final String icon;
+  final String typeColor;
+  bool isRead;
+
+  NotificationItem({
+    required this.title,
+    required this.desc,
+    required this.time,
+    required this.icon,
+    required this.typeColor,
+    this.isRead = false,
+  });
+
+  Map<String, dynamic> toJson() => {
+    'title': title,
+    'desc': desc,
+    'time': time,
+    'icon': icon,
+    'typeColor': typeColor,
+    'isRead': isRead,
+  };
+
+  static NotificationItem fromJson(Map<String, dynamic> json) =>
+      NotificationItem(
+        title: json['title'],
+        desc: json['desc'],
+        time: json['time'],
+        icon: json['icon'],
+        typeColor: json['typeColor'],
+        isRead: json['isRead'],
+      );
+}
+
+class NotificationService {
+  static const String _key = "notifications";
+  static final ValueNotifier<List<NotificationItem>> notifier =
+      ValueNotifier<List<NotificationItem>>([]);
+
+  static Future<void> init() async {
+    notifier.value = await loadNotifications();
+  }
+
+  static Future<List<NotificationItem>> loadNotifications() async {
+    final prefs = await SharedPreferences.getInstance();
+    final data = prefs.getStringList(_key) ?? [];
+    final list = data
+        .map((e) => NotificationItem.fromJson(json.decode(e)))
+        .toList();
+    notifier.value = list;
+    return list;
+  }
+
+  static Future<void> saveNotifications(List<NotificationItem> items) async {
+    final prefs = await SharedPreferences.getInstance();
+    final data = items.map((e) => json.encode(e.toJson())).toList();
+    await prefs.setStringList(_key, data);
+    notifier.value = List.from(items);
+  }
+
+  static Future<void> addNotification(NotificationItem item) async {
+    final current = await loadNotifications();
+    current.insert(0, item);
+    await saveNotifications(current);
+  }
+
+  static Future<void> clearAll() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_key);
+    notifier.value = [];
+  }
+}
+
+class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
 
+  @override
+  State<NotificationsScreen> createState() => _NotificationsScreenState();
+}
+
+class _NotificationsScreenState extends State<NotificationsScreen> {
   final Color bgColor = const Color(0xFFFCFAF8);
   final Color primaryColor = const Color(0xFF1D828E);
   final Color textColor = const Color(0xFF140F1F);
 
-  final List<Map<String, String>> notifications = const [
-    {
-      "title": "New Job Available",
-      "desc": "AC Repair job at MG Road, Pune.",
-      "time": "10 mins ago",
-      "icon": "work",
-      "typeColor": "0xFF1D828E", // primary color
-    },
-    {
-      "title": "Payment Credited",
-      "desc": "₹450 credited to your wallet.",
-      "time": "1 hour ago",
-      "icon": "wallet",
-      "typeColor": "0xFF4CAF50", // green
-    },
-    {
-      "title": "Job Completed",
-      "desc": "Washing Machine Fix completed successfully.",
-      "time": "Yesterday",
-      "icon": "check_circle",
-      "typeColor": "0xFFFF9800", // orange
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    NotificationService.init();
+  }
 
   IconData getIcon(String name) {
     switch (name) {
@@ -81,35 +146,45 @@ class NotificationsScreen extends StatelessWidget {
         actions: [
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert, color: Colors.black87),
-            onSelected: (value) {},
-            itemBuilder:
-                (context) => [
-                  const PopupMenuItem(value: 'clear', child: Text('Clear all')),
-                  const PopupMenuItem(
-                    value: 'settings',
-                    child: Text('Settings'),
-                  ),
-                ],
+            onSelected: (value) {
+              if (value == 'clear') NotificationService.clearAll();
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(value: 'clear', child: Text('Clear all')),
+              const PopupMenuItem(value: 'settings', child: Text('Settings')),
+            ],
           ),
         ],
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: notifications.length,
-        itemBuilder: (context, index) {
-          final notif = notifications[index];
-          final Color cardColor = Color(
-            int.parse(notif["typeColor"]!),
-          ).withOpacity(0.1);
-          final Color iconColor = Color(int.parse(notif["typeColor"]!));
-          return OpenContainer(
-            closedElevation: 0,
-            openElevation: 6,
-            closedColor: Colors.transparent,
-            openColor: Colors.white,
-            transitionDuration: const Duration(milliseconds: 400),
-            closedBuilder:
-                (context, _) => Padding(
+      body: ValueListenableBuilder<List<NotificationItem>>(
+        valueListenable: NotificationService.notifier,
+        builder: (context, notifications, _) {
+          if (notifications.isEmpty) {
+            return Center(
+              child: Text(
+                "No notifications yet!",
+                style: GoogleFonts.poppins(color: Colors.grey[600]),
+              ),
+            );
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: notifications.length,
+            itemBuilder: (context, index) {
+              final notif = notifications[index];
+              final Color cardColor = Color(
+                int.parse(notif.typeColor),
+              ).withOpacity(0.1);
+              final Color iconColor = Color(int.parse(notif.typeColor));
+
+              return OpenContainer(
+                closedElevation: 0,
+                openElevation: 6,
+                closedColor: Colors.transparent,
+                openColor: Colors.white,
+                transitionDuration: const Duration(milliseconds: 400),
+                closedBuilder: (context, _) => Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
@@ -138,13 +213,13 @@ class NotificationsScreen extends StatelessWidget {
                         radius: 26,
                         backgroundColor: cardColor,
                         child: Icon(
-                          getIcon(notif["icon"] ?? ""),
+                          getIcon(notif.icon),
                           color: iconColor,
                           size: 22,
                         ),
                       ),
                       title: Text(
-                        notif["title"]!,
+                        notif.title,
                         style: GoogleFonts.poppins(
                           fontWeight: FontWeight.w600,
                           color: textColor,
@@ -156,7 +231,7 @@ class NotificationsScreen extends StatelessWidget {
                         children: [
                           const SizedBox(height: 4),
                           Text(
-                            notif["desc"]!,
+                            notif.desc,
                             style: GoogleFonts.poppins(
                               color: Colors.grey[700],
                               fontSize: 13,
@@ -164,7 +239,7 @@ class NotificationsScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            notif["time"]!,
+                            notif.time,
                             style: GoogleFonts.poppins(
                               color: Colors.grey[500],
                               fontSize: 11,
@@ -176,15 +251,14 @@ class NotificationsScreen extends StatelessWidget {
                         width: 10,
                         height: 10,
                         decoration: BoxDecoration(
-                          color: index == 0 ? iconColor : Colors.transparent,
+                          color: notif.isRead ? Colors.transparent : iconColor,
                           shape: BoxShape.circle,
                         ),
                       ),
                     ),
                   ),
                 ),
-            openBuilder:
-                (context, _) => Scaffold(
+                openBuilder: (context, _) => Scaffold(
                   appBar: AppBar(
                     backgroundColor: bgColor,
                     elevation: 0,
@@ -196,7 +270,7 @@ class NotificationsScreen extends StatelessWidget {
                       onPressed: () => Navigator.pop(context),
                     ),
                     title: Text(
-                      notif["title"]!,
+                      notif.title,
                       style: GoogleFonts.poppins(
                         color: textColor,
                         fontWeight: FontWeight.bold,
@@ -214,7 +288,7 @@ class NotificationsScreen extends StatelessWidget {
                               radius: 24,
                               backgroundColor: cardColor,
                               child: Icon(
-                                getIcon(notif["icon"] ?? ""),
+                                getIcon(notif.icon),
                                 color: iconColor,
                                 size: 22,
                               ),
@@ -222,7 +296,7 @@ class NotificationsScreen extends StatelessWidget {
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
-                                notif["desc"]!,
+                                notif.desc,
                                 style: GoogleFonts.poppins(
                                   fontSize: 16,
                                   color: textColor,
@@ -233,7 +307,7 @@ class NotificationsScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 20),
                         Text(
-                          "Time: ${notif["time"]}",
+                          "Time: ${notif.time}",
                           style: GoogleFonts.poppins(
                             color: Colors.grey[600],
                             fontSize: 13,
@@ -243,6 +317,8 @@ class NotificationsScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+              );
+            },
           );
         },
       ),

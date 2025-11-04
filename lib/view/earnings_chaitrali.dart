@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:localhands_app/view/not_chaitrali.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -114,8 +115,8 @@ class _EarningsScreenState extends State<EarningsScreen> {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    hexToColor("#1D828E").withOpacity(0.8),
-                    hexToColor("#1A237E").withOpacity(0.7),
+                    Color(0xFF1D828E).withOpacity(0.8),
+                    Color.fromARGB(255, 50, 189, 117).withOpacity(0.7),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -140,15 +141,14 @@ class _EarningsScreenState extends State<EarningsScreen> {
                   TweenAnimationBuilder(
                     tween: Tween<double>(begin: 0, end: totalEarnings),
                     duration: const Duration(seconds: 1),
-                    builder:
-                        (context, value, child) => Text(
-                          "₹${value.toInt()}",
-                          style: GoogleFonts.poppins(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
+                    builder: (context, value, child) => Text(
+                      "₹${value.toInt()}",
+                      style: GoogleFonts.poppins(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -192,8 +192,8 @@ class _EarningsScreenState extends State<EarningsScreen> {
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [
-                                hexToColor("#1D828E"),
-                                hexToColor("#1A237E"),
+                                Color(0xFF1D828E),
+                                Color.fromARGB(255, 50, 189, 117),
                               ],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
@@ -215,6 +215,17 @@ class _EarningsScreenState extends State<EarningsScreen> {
                               highlightColor: Colors.white.withOpacity(0.1),
                               onTap: () async {
                                 await exportEarningsPdf();
+
+                                await NotificationService.addNotification(
+                                  NotificationItem(
+                                    title: "PDF Generated Successfully",
+                                    desc:
+                                        "Your task report PDF has been created and saved in Downloads.",
+                                    time: "Just now",
+                                    icon: "check_circle",
+                                    typeColor: "0xFF4CAF50", // Green
+                                  ),
+                                );
                               },
 
                               child: Center(
@@ -239,8 +250,8 @@ class _EarningsScreenState extends State<EarningsScreen> {
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [
-                                hexToColor("#1D828E"),
-                                hexToColor("#1A237E"),
+                                Color(0xFF1D828E),
+                                Color.fromARGB(255, 50, 189, 117),
                               ],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
@@ -287,6 +298,17 @@ class _EarningsScreenState extends State<EarningsScreen> {
                                     );
                                   }
                                 }
+                                // Amount Withdrawn Successfully
+                                await NotificationService.addNotification(
+                                  NotificationItem(
+                                    title: "Amount Withdrawn Successfully",
+                                    desc:
+                                        "₹1,200 has been transferred to your linked bank account.",
+                                    time: "Just now",
+                                    icon: "wallet",
+                                    typeColor: "0xFF4CAF50", // Green
+                                  ),
+                                );
                               },
 
                               child: Center(
@@ -375,11 +397,10 @@ class _EarningsScreenState extends State<EarningsScreen> {
                         gridData: FlGridData(
                           show: true,
                           drawVerticalLine: false,
-                          getDrawingHorizontalLine:
-                              (value) => FlLine(
-                                color: Colors.grey.withOpacity(0.1),
-                                strokeWidth: 1,
-                              ),
+                          getDrawingHorizontalLine: (value) => FlLine(
+                            color: Colors.grey.withOpacity(0.1),
+                            strokeWidth: 1,
+                          ),
                         ),
                         borderData: FlBorderData(show: false),
                         titlesData: FlTitlesData(
@@ -416,14 +437,13 @@ class _EarningsScreenState extends State<EarningsScreen> {
                             sideTitles: SideTitles(
                               showTitles: true,
                               reservedSize: 38,
-                              getTitlesWidget:
-                                  (value, meta) => Text(
-                                    "₹${value.toInt()}",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 10,
-                                      color: Colors.grey[600],
-                                    ),
-                                  ),
+                              getTitlesWidget: (value, meta) => Text(
+                                "₹${value.toInt()}",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 10,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
                             ),
                           ),
                           rightTitles: AxisTitles(
@@ -460,14 +480,13 @@ class _EarningsScreenState extends State<EarningsScreen> {
                             ),
                             dotData: FlDotData(
                               show: true,
-                              getDotPainter:
-                                  (spot, percent, barData, index) =>
-                                      FlDotCirclePainter(
-                                        radius: 4,
-                                        color: Colors.white,
-                                        strokeWidth: 2,
-                                        strokeColor: primaryColor,
-                                      ),
+                              getDotPainter: (spot, percent, barData, index) =>
+                                  FlDotCirclePainter(
+                                    radius: 4,
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                    strokeColor: primaryColor,
+                                  ),
                             ),
                           ),
                         ],
@@ -513,26 +532,24 @@ class _EarningsScreenState extends State<EarningsScreen> {
                             centerSpaceRadius: 45,
                             sectionsSpace: 2,
                             startDegreeOffset: -90,
-                            sections:
-                                serviceBreakdown.entries.map((e) {
-                                  final index = serviceBreakdown.keys
-                                      .toList()
-                                      .indexOf(e.key);
-                                  return PieChartSectionData(
-                                    color: Colors
-                                        .primaries[index %
-                                            Colors.primaries.length]
-                                        .withOpacity(0.85),
-                                    value: e.value,
-                                    radius: 60,
-                                    title: "₹${e.value.toInt()}",
-                                    titleStyle: GoogleFonts.poppins(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  );
-                                }).toList(),
+                            sections: serviceBreakdown.entries.map((e) {
+                              final index = serviceBreakdown.keys
+                                  .toList()
+                                  .indexOf(e.key);
+                              return PieChartSectionData(
+                                color: Colors
+                                    .primaries[index % Colors.primaries.length]
+                                    .withOpacity(0.85),
+                                value: e.value,
+                                radius: 60,
+                                title: "₹${e.value.toInt()}",
+                                titleStyle: GoogleFonts.poppins(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              );
+                            }).toList(),
                           ),
                         ),
                         Column(
@@ -562,33 +579,31 @@ class _EarningsScreenState extends State<EarningsScreen> {
                   Wrap(
                     spacing: 12,
                     runSpacing: 8,
-                    children:
-                        serviceBreakdown.keys.map((service) {
-                          final index = serviceBreakdown.keys.toList().indexOf(
+                    children: serviceBreakdown.keys.map((service) {
+                      final index = serviceBreakdown.keys.toList().indexOf(
+                        service,
+                      );
+                      return Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 10,
+                            height: 10,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors
+                                  .primaries[index % Colors.primaries.length]
+                                  .withOpacity(0.85),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
                             service,
-                          );
-                          return Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                width: 10,
-                                height: 10,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors
-                                      .primaries[index %
-                                          Colors.primaries.length]
-                                      .withOpacity(0.85),
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                              Text(
-                                service,
-                                style: GoogleFonts.poppins(fontSize: 12),
-                              ),
-                            ],
-                          );
-                        }).toList(),
+                            style: GoogleFonts.poppins(fontSize: 12),
+                          ),
+                        ],
+                      );
+                    }).toList(),
                   ),
                 ],
               ),
@@ -755,121 +770,117 @@ class _EarningsScreenState extends State<EarningsScreen> {
             const SizedBox(height: 16),
             // Earnings History List
             Column(
-              children:
-                  earningsHistory
-                      .where((item) {
-                        // Payment Status filter
-                        bool paymentCheck =
-                            selectedFilter == "All" ||
-                            item["status"] == selectedFilter;
-                        // Service filter
-                        bool serviceCheck =
-                            selectedServiceFilter == "All Services" ||
-                            item["title"] == selectedServiceFilter;
-                        // Date filter
-                        bool dateCheck = true;
-                        if (selectedDateFilter == "Today") {
-                          DateTime now = DateTime.now();
-                          dateCheck =
-                              item["date"].day == now.day &&
-                              item["date"].month == now.month &&
-                              item["date"].year == now.year;
-                        } else if (selectedDateFilter == "This Week") {
-                          DateTime now = DateTime.now();
-                          DateTime startOfWeek = now.subtract(
-                            Duration(days: now.weekday - 1),
+              children: earningsHistory
+                  .where((item) {
+                    // Payment Status filter
+                    bool paymentCheck =
+                        selectedFilter == "All" ||
+                        item["status"] == selectedFilter;
+                    // Service filter
+                    bool serviceCheck =
+                        selectedServiceFilter == "All Services" ||
+                        item["title"] == selectedServiceFilter;
+                    // Date filter
+                    bool dateCheck = true;
+                    if (selectedDateFilter == "Today") {
+                      DateTime now = DateTime.now();
+                      dateCheck =
+                          item["date"].day == now.day &&
+                          item["date"].month == now.month &&
+                          item["date"].year == now.year;
+                    } else if (selectedDateFilter == "This Week") {
+                      DateTime now = DateTime.now();
+                      DateTime startOfWeek = now.subtract(
+                        Duration(days: now.weekday - 1),
+                      );
+                      DateTime endOfWeek = startOfWeek.add(Duration(days: 6));
+                      dateCheck =
+                          item["date"].isAfter(
+                            startOfWeek.subtract(Duration(days: 1)),
+                          ) &&
+                          item["date"].isBefore(
+                            endOfWeek.add(Duration(days: 1)),
                           );
-                          DateTime endOfWeek = startOfWeek.add(
-                            Duration(days: 6),
-                          );
-                          dateCheck =
-                              item["date"].isAfter(
-                                startOfWeek.subtract(Duration(days: 1)),
-                              ) &&
-                              item["date"].isBefore(
-                                endOfWeek.add(Duration(days: 1)),
-                              );
-                        } else if (selectedDateFilter == "This Month") {
-                          DateTime now = DateTime.now();
-                          dateCheck =
-                              item["date"].month == now.month &&
-                              item["date"].year == now.year;
-                        }
-                        return paymentCheck && serviceCheck && dateCheck;
-                      })
-                      .map(
-                        (item) => Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 6,
-                                  offset: Offset(0, 2),
-                                ),
-                              ],
+                    } else if (selectedDateFilter == "This Month") {
+                      DateTime now = DateTime.now();
+                      dateCheck =
+                          item["date"].month == now.month &&
+                          item["date"].year == now.year;
+                    }
+                    return paymentCheck && serviceCheck && dateCheck;
+                  })
+                  .map(
+                    (item) => Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 6,
+                              offset: Offset(0, 2),
                             ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      item["title"],
-                                      style: GoogleFonts.poppins(
-                                        color: textColor,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      "${item["date"].day}-${item["date"].month}-${item["date"].year} | ${item["client"]}",
-                                      style: GoogleFonts.poppins(
-                                        color: Colors.grey[600],
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 2,
-                                        horizontal: 6,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color:
-                                            item["status"] == "Paid"
-                                                ? Colors.green[200]
-                                                : Colors.orange[200],
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Text(
-                                        item["status"],
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 10,
-                                          color: textColor,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
                                 Text(
-                                  "₹${item["amount"]}",
+                                  item["title"],
                                   style: GoogleFonts.poppins(
-                                    color: primaryColor,
+                                    color: textColor,
                                     fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  "${item["date"].day}-${item["date"].month}-${item["date"].year} | ${item["client"]}",
+                                  style: GoogleFonts.poppins(
+                                    color: Colors.grey[600],
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 2,
+                                    horizontal: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: item["status"] == "Paid"
+                                        ? Colors.green[200]
+                                        : Colors.orange[200],
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    item["status"],
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 10,
+                                      color: textColor,
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
-                          ),
+                            Text(
+                              "₹${item["amount"]}",
+                              style: GoogleFonts.poppins(
+                                color: primaryColor,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
-                      )
-                      .toList(),
+                      ),
+                    ),
+                  )
+                  .toList(),
             ),
           ],
         ),
@@ -919,17 +930,16 @@ class _EarningsScreenState extends State<EarningsScreen> {
                   color: PdfColors.grey400,
                 ),
                 cellAlignment: pw.Alignment.centerLeft,
-                data:
-                    earningsHistory.map((item) {
-                      final date = item["date"] as DateTime;
-                      return [
-                        item["title"],
-                        item["client"],
-                        "${date.day}-${date.month}-${date.year}",
-                        item["status"],
-                        item["amount"].toString(),
-                      ];
-                    }).toList(),
+                data: earningsHistory.map((item) {
+                  final date = item["date"] as DateTime;
+                  return [
+                    item["title"],
+                    item["client"],
+                    "${date.day}-${date.month}-${date.year}",
+                    item["status"],
+                    item["amount"].toString(),
+                  ];
+                }).toList(),
               ),
               pw.SizedBox(height: 20),
               pw.Divider(),
@@ -1038,7 +1048,10 @@ class _EarningsScreenState extends State<EarningsScreen> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
                       gradient: const LinearGradient(
-                        colors: [Color(0xFF1D828E), Color(0xFF1A237E)],
+                        colors: [
+                          Color(0xFF1D828E),
+                          Color.fromARGB(255, 50, 189, 117),
+                        ],
                       ),
                     ),
                   ),
@@ -1071,10 +1084,9 @@ class _EarningsScreenState extends State<EarningsScreen> {
                         if (title.contains("Date")) {
                           icon = Icons.calendar_today_outlined;
                         } else if (title.contains("Payment")) {
-                          icon =
-                              option == "Paid"
-                                  ? Icons.check_circle
-                                  : Icons.schedule;
+                          icon = option == "Paid"
+                              ? Icons.check_circle
+                              : Icons.schedule;
                         } else {
                           icon = Icons.miscellaneous_services;
                         }
@@ -1082,22 +1094,20 @@ class _EarningsScreenState extends State<EarningsScreen> {
                         return AnimatedContainer(
                           duration: const Duration(milliseconds: 250),
                           curve: Curves.easeInOut,
-                          transform:
-                              isSelected
-                                  ? (Matrix4.identity()..scale(1.03))
-                                  : Matrix4.identity(),
+                          transform: isSelected
+                              ? (Matrix4.identity()..scale(1.03))
+                              : Matrix4.identity(),
                           margin: const EdgeInsets.symmetric(vertical: 6),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
-                            gradient:
-                                isSelected
-                                    ? const LinearGradient(
-                                      colors: [
-                                        Color(0xFF1D828E),
-                                        Color(0xFF1A237E),
-                                      ],
-                                    )
-                                    : null,
+                            gradient: isSelected
+                                ? const LinearGradient(
+                                    colors: [
+                                      Color(0xFF1D828E),
+                                      Color.fromARGB(255, 50, 189, 117),
+                                    ],
+                                  )
+                                : null,
                             color: isSelected ? null : Colors.white,
                             boxShadow: [
                               BoxShadow(
@@ -1107,10 +1117,9 @@ class _EarningsScreenState extends State<EarningsScreen> {
                               ),
                             ],
                             border: Border.all(
-                              color:
-                                  isSelected
-                                      ? const Color(0xFF1D828E)
-                                      : Colors.grey.shade300,
+                              color: isSelected
+                                  ? const Color(0xFF1D828E)
+                                  : Colors.grey.shade300,
                               width: isSelected ? 1.5 : 1,
                             ),
                           ),
@@ -1133,24 +1142,21 @@ class _EarningsScreenState extends State<EarningsScreen> {
                                     children: [
                                       Icon(
                                         icon,
-                                        color:
-                                            isSelected
-                                                ? Colors.white
-                                                : Colors.grey[700],
+                                        color: isSelected
+                                            ? Colors.white
+                                            : Colors.grey[700],
                                       ),
                                       const SizedBox(width: 12),
                                       Text(
                                         option,
                                         style: GoogleFonts.poppins(
                                           fontSize: 14,
-                                          fontWeight:
-                                              isSelected
-                                                  ? FontWeight.w600
-                                                  : FontWeight.normal,
-                                          color:
-                                              isSelected
-                                                  ? Colors.white
-                                                  : Colors.black87,
+                                          fontWeight: isSelected
+                                              ? FontWeight.w600
+                                              : FontWeight.normal,
+                                          color: isSelected
+                                              ? Colors.white
+                                              : Colors.black87,
                                         ),
                                       ),
                                     ],

@@ -20,7 +20,7 @@ class _SplashScreenState extends State<SplashScreen>
   final List<Color> gradientColors = [
     const Color(0xFF1D828E),
     const Color(0xFFFEAC5D),
-    const Color(0xFF1A237E),
+    const Color.fromARGB(255, 50, 189, 117),
   ];
 
   @override
@@ -77,9 +77,10 @@ class _SplashScreenState extends State<SplashScreen>
           gradient: LinearGradient(
             colors: [
               const Color(0xFF1D828E),
-              const Color(0xFF1A237E).withOpacity(0.9),
+              Color.fromARGB(255, 50, 189, 117).withOpacity(0.9),
               const Color(0xFFFEAC5D).withOpacity(0.6),
             ],
+
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),

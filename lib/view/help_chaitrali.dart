@@ -267,8 +267,8 @@ If a user asks something unrelated, gently redirect them to worker-related help.
                     context,
                     MaterialPageRoute(
                       builder: (context) => ChatScreen(
-                        chatId: 'user123_worker456', // fixed unique id for both
-                        currentUserId: 'worker456',
+                        currentUserId: "worker_456", // for worker
+                        chatId: "user_123_worker_456", // same chatId as above
                       ),
                     ),
                   );
@@ -328,7 +328,10 @@ If a user asks something unrelated, gently redirect them to worker-related help.
                 height: 50,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [hexToColor("#1D828E"), hexToColor("#1A237E")],
+                    colors: [
+                      Color(0xFF1D828E),
+                      Color.fromARGB(255, 50, 189, 117),
+                    ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
