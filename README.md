@@ -133,7 +133,10 @@ flutter run
 
 ## 👥 Team – PixelPulse
 
-* Add your teammate names here
+* Chaitrali Wagh
+* Anushree Vaidya
+* Sejal Patil
+* Mayuri Unawane
 
 ---
 
